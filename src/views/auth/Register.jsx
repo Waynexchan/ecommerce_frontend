@@ -1,37 +1,49 @@
-import React, {useState, useEffect} from 'react'
+import {useState, useEffect} from 'react'
 import { register } from '../../utils/auth'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/auths'
 
 function Register() {
-
-    const[fullname, setFullname]= useState("")
-    const[email, setEmail] = useState("")
-    const[mobile, setMobile] = useState("")
-    const[password, setPassword] = useState("")
-    const[password2, setPassword2] = useState("")
-
+    const [fullname, setFullname] = useState('');
+    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
+    const [password, setPassword] = useState('');
+    const [password2, setPassword2] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const navigate = useNavigate()
-    const isLoggedIn =useAuthStore((state) => state.isLoggedIn)
+    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        if(isLoggedIn()) {
-            navigate("/")
+        if (isLoggedIn()) {
+            navigate('/');
         }
-    },[])
+    }, []);
 
-    const handleSubmit = async (e) =>{
-        e.preventDefault()
-        setIsLoading(true)
+    const resetForm = () => {
+        setFullname('');
+        setEmail('');
+        setPhone('');
+        setPassword('');
+        setPassword2('');
+    };
 
-        const { error } = await register(fullname, email, mobile, password, password2)
-        if (error){
-            alert(JSON.stringify(error))
-        }else{
-            navigate('/')
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        // Set isLoading to true when the form is submitted
+        setIsLoading(true);
+
+        const { error } = await register(fullname, email, phone, password, password2);
+        if (error) {
+            alert(JSON.stringify(error));
+        } else {
+            navigate('/');
+            resetForm();
         }
-    }
+
+        // Reset isLoading to false when the operation is complete
+        setIsLoading(false);
+    };
 
     return (
         <>
@@ -62,7 +74,7 @@ function Register() {
                     placeholder='Mobile number'
                     name=''
                     id=''
-                    onChange={(e) =>setMobile(e.target.value)}
+                    onChange={(e) =>setPhone(e.target.value)}
                 />
                 <br />
                 <br />
