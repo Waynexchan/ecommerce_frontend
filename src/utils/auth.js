@@ -4,6 +4,7 @@ import axios from './axios'
 import jwt_decode from 'jwt-decode'
 import Cookies from 'js-cookie'
 
+
 export const login = async (email, password) =>{
     try{
         const {data, status} = await axios.post("user/token/", {

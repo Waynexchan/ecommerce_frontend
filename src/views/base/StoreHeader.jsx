@@ -6,7 +6,7 @@ function StoreHeader() {
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
         <div className="container">
           <Link className="navbar-brand" to="/">
-            Desphixs Test
+            Wayne e-commerce
           </Link>
           <button
             className="navbar-toggler"
