@@ -9,7 +9,6 @@ function Login() {
     const [password, setPassword]=useState("")
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate()
-
     const isLoggedIn =useAuthStore((state) => state.isLoggedIn)
 
     useEffect(() => {
@@ -58,8 +57,11 @@ function Login() {
                 value={password}
                 onChange={(e) =>setPassword(e.target.value)}
             />
-
+            <br />
+            <br />
             <button type='submit'>Login</button>
+            <hr />
+            <link to={'/forgot-password'}>Forgot Password</link>
         </form>
         </div>
     )

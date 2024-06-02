@@ -12,9 +12,12 @@ function Dashboard() {
       {isLoggedIn()
         ? <div>
             <h1>Dashboard</h1>
-            <Link to={`/logout`}>Logout</Link>
+            <Link to={'/register'}>Register</Link>
+            <Link to={'/login'}>Login</Link>
         </div>
-        : <div>HomePage</div>
+        : <div>
+          <h1>Home Page</h1>
+        </div>
       }
     </>
   )
