@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import apiInstance from '../../utils/axios'
 import GetCurrentAddress from '../plugin/UserCountry';
+import UserData from '../plugin/UserData';
+import CartID from '../plugin/CartID';
 
 function ProductDetail() {
     const [product, setProduct] = useState({});
@@ -17,8 +19,12 @@ function ProductDetail() {
 
     const param = useParams(); // grab the parameter
     const currentAddress = GetCurrentAddress(); //call the function
+    const userData = UserData() //to grab information from token
+    const cart_id = CartID() //create random cart_id
 
-    
+   
+
+
     useEffect(() => {
         apiInstance.get(`products/${param.slug}/`) // to grab the parameter and put into the URL
             .then((res) => {
@@ -57,6 +63,8 @@ function ProductDetail() {
         console.log("Size:", sizeValue);
         
         console.log("Country:",currentAddress.country);
+        console.log("User ID:", userData?.user_id);
+        console.log("Cart ID:",cart_id)
     }
 
     if (error) {
