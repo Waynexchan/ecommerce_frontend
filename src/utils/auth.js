@@ -3,6 +3,15 @@ import { useAuthStore  }  from "../store/auths"; //import axios library
 import axios from './axios'
 import jwt_decode from 'jwt-decode'
 import Cookies from 'js-cookie'
+import swal from 'sweetalert2'
+
+const Toast = swal.mixin({
+    toast:true,
+    position:"top",
+    showConfirmButton:false,
+    timer:1500,
+    timerProgressBar:true
+  })
 
 
 export const login = async (email, password) =>{
@@ -16,6 +25,11 @@ export const login = async (email, password) =>{
             setAuthUser(data.access, data.refresh)
 
             //Alert -Sign In Successfully
+            Toast.fire({
+                icon:"success",
+                title:"login successfully"
+
+            })
         }
         return {data, error: null }
     }catch (error) {
@@ -39,6 +53,11 @@ export const register = async (full_name, email, phone, password, password2) =>{
         await login(email, password)
 
         //Alert -Signed up Successfully
+        Toast.fire({
+            icon:"success",
+            title:"Account created successfully"
+
+        })
 
         return {data, error: null}
     } catch (error) {
