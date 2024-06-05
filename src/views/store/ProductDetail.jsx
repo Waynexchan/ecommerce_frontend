@@ -55,16 +55,7 @@ function ProductDetail() {
     }
 
     const handleAddToCart = async () => {
-        // console.log("Product ID:", product.id);
-        // console.log("Price:", product.price);
-        // console.log("Shipping Amount:", product.shipping_amount);
-        // console.log("Qty:", qtyValue);
-        // console.log("Color:", colorValue);
-        // console.log("Size:", sizeValue);
         
-        // console.log("Country:",currentAddress.country);
-        // console.log("User ID:", userData?.user_id);
-        // console.log("Cart ID:",cart_id)
         try {
             const formdata = new FormData()
 
@@ -354,7 +345,7 @@ function ProductDetail() {
                                                 <div className="card-body">
                                                     <h5 className="card-title">User 1</h5>
                                                     <p className="card-text">August 10, 2023</p>
-                                                    <p className="card-text">This is a great product! I'm really satisfied with it.</p>
+                                                    <p className="card-text">This is a great product! I am really satisfied with it.</p>
                                                 </div>
                                             </div>
                                         </div>
