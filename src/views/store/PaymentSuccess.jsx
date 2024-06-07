@@ -11,30 +11,31 @@ function PaymentSuccess() {
     const urlParam = new URLSearchParams(window.location.search)
     const sessionId = urlParam.get("session_id")
 
-    useEffect(() =>{
-        apiInstance.get(`checkout/${param.order_oid}/`).then((res) =>{
+    useEffect(() => {
+        apiInstance.get(`checkout/${param.order_oid}/`).then((res) => {
             setOrder(res.data);
         })
-    },[])
+    }, [param.order_oid])
 
     useEffect(() => {
-        const formdata = new FormData()
-        formdata.append("order_oid", param?.order_oid)
-        formdata.append("session_id",sessionId )
+        if (order.oid) {
+            const formdata = new FormData()
+            formdata.append("order_oid", order.oid)
+            formdata.append("session_id", sessionId)
 
-
-        apiInstance.post(`payment-success/${order.oid}/`, formdata).then((res) =>{
-            if (res.data.message === "Payment Successfull"){
-                setStatus("Payment Successfull")
-            }
-            if (res.data.message === "Already Paid"){
-                setStatus("Already Paid")
-            }
-            if (res.data.message === "Your Invoice is Unpaid"){
-                setStatus("Your Invoice is Unpaid")
-            }
-        })
-    },[param?.order_oid])
+            apiInstance.post(`payment-success/${order.oid}/`, formdata).then((res) => {
+                if (res.data.message === "Payment Successfull") {
+                    setStatus("Payment Successfull")
+                }
+                if (res.data.message === "Already Paid") {
+                    setStatus("Already Paid")
+                }
+                if (res.data.message === "Your Invoice is Unpaid") {
+                    setStatus("Your Invoice is Unpaid")
+                }
+            })
+        }
+    }, [order.oid, sessionId])
 
     return (
         <div>
