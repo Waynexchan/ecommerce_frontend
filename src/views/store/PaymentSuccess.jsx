@@ -3,13 +3,14 @@ import apiInstance from '../../utils/axios'
 import { useParams } from 'react-router-dom'
 
 function PaymentSuccess() {
-    const [order,setOrder] = useState([])
+    const [order, setOrder] = useState([]);
     const [status, setStatus] = useState("Verifying")
 
     const param = useParams()
     
     const urlParam = new URLSearchParams(window.location.search)
     const sessionId = urlParam.get("session_id")
+    const paypalOrderId = urlParam.get("paypal_order_id");
 
     useEffect(() => {
         apiInstance.get(`checkout/${param.order_oid}/`).then((res) => {
@@ -18,24 +19,28 @@ function PaymentSuccess() {
     }, [param.order_oid])
 
     useEffect(() => {
-        if (order.oid) {
+        if (order && order.oid) {
             const formdata = new FormData()
             formdata.append("order_oid", order.oid)
             formdata.append("session_id", sessionId)
+            formdata.append("paypal_order_id", paypalOrderId);
 
             apiInstance.post(`payment-success/${order.oid}/`, formdata).then((res) => {
-                if (res.data.message === "Payment Successfull") {
-                    setStatus("Payment Successfull")
-                }
-                if (res.data.message === "Already Paid") {
+                if (res.data.message === "Payment Successful") {
+                    setStatus("Payment Successful")
+                } else if (res.data.message === "Already Paid") {
                     setStatus("Already Paid")
-                }
-                if (res.data.message === "Your Invoice is Unpaid") {
+                } else if (res.data.message === "Your Invoice is Unpaid") {
                     setStatus("Your Invoice is Unpaid")
+                } else {
+                    setStatus("An Error occurred")
                 }
-            })
+            }).catch((error) => {
+                console.error('Payment verification error:', error);
+                setStatus("An Error occurred")
+            });
         }
-    }, [order.oid, sessionId])
+    }, [order, sessionId, paypalOrderId])
 
     return (
         <div>
@@ -61,7 +66,7 @@ function PaymentSuccess() {
                                             />
                                             </div>
                                             <div className="text-center">
-                                            <h1>Payment Verifing!</h1>
+                                            <h1>Payment Verifying!</h1>
                                             <p>
                                                 <b className='text-success'>Please hold on, while we verify your payment</b>
                                                 <br/>
@@ -73,7 +78,7 @@ function PaymentSuccess() {
                                         </div>
                                     }
 
-                                    {status === "Payment Successfull" &&
+                                    {status === "Payment Successful" &&
                                         <div className="col-lg-12">
                                         <div className="border border-3 border-success" />
                                         <div className="card bg-white shadow p-5">
@@ -87,7 +92,7 @@ function PaymentSuccess() {
                                             <h1>Thank You !</h1>
                                             <p>
                                             Thanks for your patronage, please note your order id <b>#{order.oid}</b><br/>
-                                            We have send an oder summary to your linked email address <b>({order.email})</b>
+                                            We have sent an order summary to your linked email address <b>({order.email})</b>
                                             </p>
                                             <button
                                                 className="btn btn-success mt-3"
@@ -106,7 +111,7 @@ function PaymentSuccess() {
                                             <a
                                                 className="btn btn-secondary mt-3 ms-2"
                                             >
-                                                Go Home <i className="fas fa-fa-arrow-left" />{" "}
+                                                Go Home <i className="fas fa-arrow-left" />{" "}
                                             </a>
                                             </div>
                                         </div>
@@ -118,7 +123,7 @@ function PaymentSuccess() {
                                         <div className="card bg-white shadow p-5">
                                             <div className="mb-4 text-center">
                                             <i
-                                                className="fas fa-ban text-dam=nger"
+                                                className="fas fa-ban text-danger"
                                                 style={{ fontSize: 100, color: "red" }}
                                             />
                                             </div>
@@ -146,7 +151,7 @@ function PaymentSuccess() {
                                             <h1>Thank You !</h1>
                                             <p>
                                             Thanks for your patronage, please note your order id <b>#{order.oid}</b><br/>
-                                            We have send an oder summary to your linked email address <b>({order.email})</b>
+                                            We have sent an order summary to your linked email address <b>({order.email})</b>
                                             </p>
                                             <button
                                                 className="btn btn-success mt-3"
@@ -165,8 +170,28 @@ function PaymentSuccess() {
                                             <a
                                                 className="btn btn-secondary mt-3 ms-2"
                                             >
-                                                Go Home <i className="fas fa-fa-arrow-left" />{" "}
+                                                Go Home <i className="fas fa-arrow-left" />{" "}
                                             </a>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    }
+                                    {status === "An Error occurred" &&
+                                        <div className="col-lg-12">
+                                        <div className="border border-3 border-danger" />
+                                        <div className="card bg-white shadow p-5">
+                                            <div className="mb-4 text-center">
+                                            <i
+                                                className="fas fa-exclamation-circle text-danger"
+                                                style={{ fontSize: 100, color: "red" }}
+                                            />
+                                            </div>
+                                            <div className="text-center">
+                                            <h1>Error Occurred<i className='fas fa-ban'></i></h1>
+                                            <p>
+                                                <b className='text-danger'>An error occurred during payment verification. Please try again later.</b>
+                                            </p>
+                                            
                                             </div>
                                         </div>
                                         </div>

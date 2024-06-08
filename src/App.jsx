@@ -36,7 +36,7 @@ function App() {
         <Route path='/detail/:slug/' element= {<ProductDetail />}/>
         <Route path='/cart/' element= {<Cart />}/>
         <Route path='/checkout/:order_oid/' element= {<Checkout />}/>
-        <Route path='//payment-success/:order_oid/' element= {<PaymentSuccess />}/>
+        <Route path='/payment-success/:order_oid/' element= {<PaymentSuccess />}/>
 
       </Routes>
       <StoreFooter/>
