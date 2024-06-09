@@ -22,6 +22,10 @@ import { useEffect, useState } from 'react'
 import CartID from './views/plugin/CartID'
 import UserData from './views/plugin/UserData'
 import apiInstance from './utils/axios'
+import Account from './views/customer/Account'
+import PrivateRoute from './layout/PrivateRoute'
+import Orders from './views/customer/Orders'
+import OrderDetail from './views/customer/OrderDetail'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -42,7 +46,7 @@ function App() {
     <CartContext.Provider value={([cartCount, setCartCount])}>
       <BrowserRouter>
         <StoreHeader/>
-      
+          <MainWrapper>
           <Routes>
             <Route path='/login' element={<Login />}/>
             <Route path='/register' element={<Register />}/>
@@ -59,7 +63,15 @@ function App() {
             <Route path='/payment-success/:order_oid/' element= {<PaymentSuccess />}/>
             <Route path='/search/' element= {<Search />}/>
 
+            {/* Customer Routes */}
+            <Route path='/customer/account/' element= {<PrivateRoute><Account /></PrivateRoute>}/>
+            <Route path='/customer/orders/' element= {<PrivateRoute><Orders /></PrivateRoute>}/>
+            <Route path='/customer/orders/:order_oid/' element= {<PrivateRoute><OrderDetail /></PrivateRoute>}/>
+
           </Routes>
+
+          </MainWrapper>
+          
         <StoreFooter/>
       </BrowserRouter>
     </CartContext.Provider>
