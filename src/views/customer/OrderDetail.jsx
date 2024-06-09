@@ -7,20 +7,22 @@ import moment from 'moment'
 
 
 function OrderDetail() {
-    const [order, setOrder] = useState({})
-    const [orderItems, setOrderItems] = useState([])
+    const [order, setOrder] = useState({});
+    const [orderItems, setOrderItems] = useState([]);
 
-    const userData = UserData()
-    const param = useParams()
+    const userData = UserData();
+    const param = useParams();
 
     useEffect(() => {
-        apiInstance.get(`customer/order/${userData?.user_id}/${param.order_oid}/`).then((res) =>{
-            setOrder(res.data)
-            setOrderItems(res.data.orderitem)
-        })
-    },[])
+        if (userData?.user_id) {
+            apiInstance.get(`customer/order/${userData.user_id}/${param.order_oid}/`).then((res) => {
+                setOrder(res.data);
+                setOrderItems(res.data.orderitem);
+            }).catch(err => console.error(err));
+        }
+    }, [userData?.user_id, param.order_oid]);
 
-    console.log(order)
+  
 
     return (
         <main className="mt-5">

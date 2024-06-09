@@ -7,23 +7,24 @@ import moment from 'moment';
 
 function Orders() {
     const [orders, setOrders] = useState([]);
-
     const userData = UserData();
 
     useEffect(() => {
-        if (userData) {
-            apiInstance.get(`customer/orders/${userData?.user_id}/`).then((res) => {
-                setOrders(res.data);
-                console.log(res.data);
-            });
+        if (userData?.user_id) {
+            apiInstance.get(`customer/orders/${userData.user_id}/`)
+                .then((res) => {
+                    setOrders(res.data);
+                    console.log(res.data);
+                })
+                .catch(err => console.error(err));
         }
-    }, [userData]);
+    }, [userData?.user_id]);
 
     const statusCounts = orders.reduce((counts, order) => {
         const status = order.order_status.toLowerCase();
-        counts[status] = (counts[status] || 0) +1
-        return counts
-    },{})
+        counts[status] = (counts[status] || 0) + 1;
+        return counts;
+    }, {});
 
     return (
         <main className="mt-5">
@@ -126,6 +127,9 @@ function Orders() {
                                                                 <td>
                                                                     <Link to={`/customer/orders/${order.oid}/`} className="btn btn-link btn-sm btn-rounded">
                                                                         View <i className="fas fa-eye" />
+                                                                    </Link>
+                                                                    <Link to={`/customer/invoice/${order.oid}/`} className="btn btn-link btn-sm btn-rounded">
+                                                                        Invoice <i className="fas fa-file-invoice" />
                                                                     </Link>
                                                                 </td>
                                                             </tr>

@@ -4,16 +4,17 @@ import apiInstance from '../../utils/axios'
 import UserData from '../plugin/UserData'
 
 function Account() {
-    const [profile, setProfile] = useState({})
+    const [profile, setProfile] = useState({});
 
-    const userData = UserData() //to return user id
+    const userData = UserData(); // to return user id
 
     useEffect(() => {
-        apiInstance.get(`user/profile/${userData?.user_id}/`).then((res) =>{
-            setProfile(res.data)
-        })
-    },[])
-
+        if (userData?.user_id) {
+            apiInstance.get(`user/profile/${userData.user_id}/`).then((res) => {
+                setProfile(res.data);
+            }).catch(err => console.error(err));
+        }
+    }, [userData?.user_id]);
     return (
         
         <main className="mt-5">

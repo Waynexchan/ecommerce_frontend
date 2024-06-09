@@ -174,15 +174,14 @@ function Cart() {
         }
     }
 
-    const createOrder = async () =>{
-        
-        if (!fullName || !email || !mobile || !address || !city || !state || !country){
+    const createOrder = async () => {
+        if (!fullName || !email || !mobile || !address || !city || !state || !country) {
             swal.fire({
                 icon: 'warning',
                 title: "Missing Fields",
                 text: "All fields are required before checkout!"
             })
-        } else{
+        } else {
             try {
                 const formdata = new FormData()
                 formdata.append("full_name", fullName)
@@ -193,15 +192,13 @@ function Cart() {
                 formdata.append("state", state)
                 formdata.append("country", country)
                 formdata.append("cart_id", cart_id)
-                formdata.append("user_id", userData ? userData ?.user_id: 0 )
-                
+                formdata.append("user_id", userData ? userData.user_id : 0)
+    
                 const response = await apiInstance.post('create-order/', formdata)
-                console.log(response.data.order_id)
                 navigate(`/checkout/${response.data.order_oid}`)
             } catch (error) {
                 console.log(error)
             }
-            
         }
     }
 
