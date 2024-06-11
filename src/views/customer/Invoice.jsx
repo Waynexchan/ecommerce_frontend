@@ -19,7 +19,7 @@ function Invoice() {
         }
     }, [userData?.user_id, param.order_oid]);
 
-    console.log(order)
+   
 
     return (
         <div>

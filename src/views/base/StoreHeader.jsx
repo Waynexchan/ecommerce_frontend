@@ -4,9 +4,10 @@ import { useState, useContext } from "react";
 import { CartContext } from "../plugin/Context";
 
 function StoreHeader() {
-    const [isLoggedIn, user] = useAuthStore((state) => [
+    const [isLoggedIn, user, logout] = useAuthStore((state) => [
         state.isLoggedIn,
         state.user,
+        state.logout // Add logout function to destructuring
     ]);
 
     const cartCount = useContext(CartContext);
@@ -15,11 +16,15 @@ function StoreHeader() {
 
     const handleSearchChange = (event) => {
         setSearch(event.target.value);
-        console.log(search);
     };
 
     const handleSearchSubmit = () => {
         navigate(`/search?query=${search}`);
+    };
+
+    const handleLogout = () => {
+        logout();
+        navigate('/'); // Redirect to home or login page after logout
     };
 
     return (
@@ -168,18 +173,17 @@ function StoreHeader() {
                             </button>
                         </div>
                         
-                        {isLoggedIn
-                            ?
+                        {isLoggedIn() ? (
                             <>
                                 <Link className="btn btn-primary me-2" to="/dashboard">Dashboard</Link>
-                                <Link className="btn btn-primary me-2" to="/logout">Logout</Link>
+                                <button className="btn btn-primary me-2" onClick={handleLogout}>Logout</button>
                             </>
-                            :
+                        ) : (
                             <>
                                 <Link className="btn btn-primary me-2" to="/login">Login</Link>
                                 <Link className="btn btn-primary me-2" to="/register">Register</Link>
                             </>
-                        }
+                        )}
                         
                         <Link className="btn btn-danger" to="/cart/">
                             <i className="fas fa-shopping-cart"></i>{" "}
