@@ -29,6 +29,7 @@ function Notification() {
 
     const markAsSeen = async (notiId) => {
         await apiInstance.get(`vendor-noti-mark-as-seen/${UserData()?.vendor_id}/${notiId}/`).then((res) =>{
+            console.log(res.data)
             fetchNotiStats()
             fetchNoti()
         })

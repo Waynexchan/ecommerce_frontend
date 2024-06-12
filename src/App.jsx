@@ -39,6 +39,7 @@ import ReviewDetail from './views/vendor/ReviewDetail'
 import Coupon from './views/vendor/Coupon'
 import EditCoupon from './views/vendor/EditCoupon'
 import Notification from './views/vendor/Notification'
+import VendorSettings from './views/vendor/VendorSettings'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -95,6 +96,7 @@ function App() {
             <Route path='/vendor/coupon/' element= {<PrivateRoute><Coupon /></PrivateRoute>}/>
             <Route path='/vendor/coupon/:coupon_id/' element= {<PrivateRoute><EditCoupon /></PrivateRoute>}/>
             <Route path='/vendor/notifications/' element= {<PrivateRoute><Notification /></PrivateRoute>}/>
+            <Route path='/vendor/settings/' element= {<PrivateRoute><VendorSettings /></PrivateRoute>}/>
 
           </Routes>
 
