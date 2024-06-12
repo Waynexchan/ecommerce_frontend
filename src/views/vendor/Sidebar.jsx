@@ -33,7 +33,7 @@ function Sidebar() {
                     </Link>
                 </li>
                 <li className="mb-3">
-                    <Link to="/vendor/reviews/" className={isActiveLink(location.pathname, '/vendor/None/') ? "nav-link text-white active" : "nav-link text-white"}>
+                    <Link to="/vendor/reviews/" className={isActiveLink(location.pathname, '/vendor/reviews/') ? "nav-link text-white active" : "nav-link text-white"}>
                         <i className="bi bi-star" /> Reviews{" "}
                     </Link>
                 </li>
@@ -44,7 +44,7 @@ function Sidebar() {
                 </li>
 
                 <li className="mb-3">
-                    <Link to={`/vendor/coupon/`} className={isActiveLink(location.pathname, '/vendor/None/') ? "nav-link text-white active" : "nav-link text-white"}>
+                    <Link to={`/vendor/coupon/`} className={isActiveLink(location.pathname, '/vendor/coupon/') ? "nav-link text-white active" : "nav-link text-white"}>
                         <i className="bi bi-tag" /> Coupon &amp; Discount{" "}
                     </Link>
                 </li>

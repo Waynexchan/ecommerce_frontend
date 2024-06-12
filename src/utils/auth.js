@@ -77,20 +77,24 @@ export const logout = () =>{
 }
 
 export const setUser = async () => {
-    const accessToken = Cookies.get("access_token")
-    const refreshToken = Cookies.get("refresh_token")
+    try {
+        const accessToken = Cookies.get("access_token");
+        const refreshToken = Cookies.get("refresh_token");
 
-    if (!accessToken || !refreshToken){
-        return;
-    }
+        if (!accessToken || !refreshToken) {
+            return;
+        }
 
-    if (isAccessTokenExpired(accessToken)){
-        const response = await getRefreshToken(refreshToken)
-        setAuthUser(response.access, response.refresh)
-    } else{
-        setAuthUser(accessToken, refreshToken)
+        if (isAccessTokenExpired(accessToken)) {
+            const response = await getRefreshToken(refreshToken);
+            setAuthUser(response.access, response.refresh);
+        } else {
+            setAuthUser(accessToken, refreshToken);
+        }
+    } catch (error) {
+        console.error('Error setting user:', error);
     }
-}
+};
 
 export const setAuthUser = (access_token, refresh_token) => {
     // Setting access and refresh tokens in cookies with expiration dates

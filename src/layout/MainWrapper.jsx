@@ -7,9 +7,14 @@ const MainWrapper = ({ children }) => {
 
     useEffect(() => {
         const handler = async () => {
-            setLoading(true);
-            await setUser();
-            setLoading(false);
+            try {
+                setLoading(true);
+                await setUser();
+            } catch (error) {
+                console.error('Error in MainWrapper:', error);
+            } finally {
+                setLoading(false);
+            }
         };
 
         handler();
@@ -17,7 +22,6 @@ const MainWrapper = ({ children }) => {
 
     return <>{loading ? null : children}</>;
 };
-
 
 MainWrapper.propTypes = {
     children: PropTypes.node.isRequired, 
