@@ -10,6 +10,8 @@ function Settings() {
 
     const[profileData, setProfileData] =useState([])
     const[ProfileImage, setProfileImage] =useState('')
+    const[vendorImage, setVendorImage] =useState([])
+    const[vendorData, setVendorData] =useState([])
     
     const fetchProfileData = () => {
       apiInstance.get(`vendor-settings/${UserData()?.user_id}/`).then((res) => {
@@ -19,8 +21,16 @@ function Settings() {
       })
     }
 
+    const fetchVendorData = () => {
+      apiInstance.get(`vendor-shop-settings/${UserData()?.vendor_id}/`).then((res)=>{
+        setVendorData(res.data)
+        setVendorImage(res.data.image)
+      })
+    }
+
     useEffect(() => {
       fetchProfileData()
+      fetchVendorData()
     },[])
 
     const handleInputChange = (event) => {
@@ -30,9 +40,26 @@ function Settings() {
       })
     }  
 
+    
+
     const handleFileChange = (event) => {
       setProfileData({
         ...profileData,
+        [event.target.name] : event.target.files[0]
+      })
+    }
+
+    const handleVendorChange = (event) => {
+      setVendorData({
+        ...vendorData,
+        [event.target.name] : event.target.value
+      })
+      console.log(vendorData)
+    }
+
+    const handleVendorFileChange = (event) => {
+      setVendorData({
+        ...vendorData,
         [event.target.name] : event.target.files[0]
       })
     }
@@ -60,6 +87,35 @@ function Settings() {
       Swal.fire({
         icon:"success",
         title: "Profile Updated Successfully"
+      })
+      
+
+    }
+
+    const handleVendorSubmit = async (e) =>{
+      e.preventDefault()
+      const formdata = new FormData()
+
+      const res = await apiInstance.get(`vendor-shop-settings/${UserData()?.vendor_id}/`)
+
+      if (vendorData.image && vendorData.image !== res.data.image){
+        formdata.append("image", vendorData.image)
+      }
+
+      formdata.append("name", vendorData.name)
+      formdata.append("email", vendorData.email)
+      formdata.append("description", vendorData.description)
+
+      await apiInstance.patch(`vendor-shop-settings/${UserData()?.vendor_id}/`, formdata, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+      fetchVendorData()
+
+      Swal.fire({
+        icon:"success",
+        title: "Shop Updated Successfully"
       })
       
 
@@ -210,15 +266,15 @@ function Settings() {
                           <div className="card-body">
                             <div className="d-flex flex-column align-items-center text-center">
                               <img
-                                src="https://img.freepik.com/free-vector/cartoon-style-cafe-front-shop-view_134830-697.jpg"
+                                src={vendorImage}
                                 style={{ width: 160, height: 160, objectFit: "cover" }}
                                 alt="Admin"
                                 className="rounded-circle"
                                 width={150}
                               />
                               <div className="mt-3">
-                                <h4 className="text-dark">Desphixs</h4>
-                                <p className="text-secondary mb-1">We sell cloths here</p>
+                                <h4 className="text-dark">{vendorData.name}</h4>
+                                <p className="text-secondary mb-1">{vendorData.description}</p>
                               </div>
                             </div>
                           </div>
@@ -232,6 +288,7 @@ function Settings() {
                               method="POST"
                               noValidate=""
                               encType="multipart/form-data"
+                              onSubmit={handleVendorSubmit}
                             >
                               <div className="row text-dark">
                                 <div className="col-lg-12 mb-2">
@@ -241,30 +298,36 @@ function Settings() {
                                   <input
                                     type="file"
                                     className="form-control"
-                                    name=""
+                                    name="image"
                                     id=""
+                                    onChange={handleVendorFileChange}
+                                    
                                   />
                                 </div>
                                 <div className="col-lg-12 mb-2 ">
                                   <label htmlFor="" className="mb-2">
-                                    Full Name
+                                    Shop Name
                                   </label>
                                   <input
                                     type="text"
                                     className="form-control"
-                                    name=""
+                                    name="name"
                                     id=""
+                                    value={vendorData.name}
+                                    onChange={handleVendorChange}
                                   />
                                 </div>
-                                <div className="col-lg-6 mb-2">
+                                <div className="col-lg-12 mb-2">
                                   <label htmlFor="" className="mb-2">
-                                    Email
+                                    Shop Email
                                   </label>
                                   <input
                                     type="text"
                                     className="form-control"
-                                    name=""
+                                    name="email"
                                     id=""
+                                    value={vendorData.email}
+                                    onChange={handleVendorChange}
                                   />
                                 </div>
                                 <div className="col-lg-6 mb-2">
@@ -276,13 +339,21 @@ function Settings() {
                                     className="form-control"
                                     name=""
                                     id=""
+                                    value={vendorData.mobile}
                                   />
                                 </div>
-                                <div className="col-lg-6 mt-4 mb-3">
-                                  <button className="btn btn-success" type="submit">
+                                <div className="col-lg-12 mb-2">
+                                  <label htmlFor="" className="mb-2">
+                                    Shop Description
+                                  </label>
+                                  <textarea name="description" id="" onChange={handleVendorChange} value={vendorData.description} cols="30" className='form-control' rows="10"></textarea>
+                                </div>
+
+                                <div className="col-lg-12 mt-4 mb-3 d-flex">
+                                  <button className="btn btn-success " type="submit">
                                     Update Shop <i className="fas fa-check-circle" />{" "}
                                   </button>
-                                  <button className="btn btn-primary" type="submit">
+                                  <button className="btn btn-primary ms-2" type="submit">
                                     View Shop <i className="fas fa-shop" />{" "}
                                   </button>
                                 </div>
