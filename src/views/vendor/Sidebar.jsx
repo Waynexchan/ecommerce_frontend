@@ -22,6 +22,13 @@ function Sidebar() {
                         <i className="bi bi-grid" /> Products{" "}
                     </Link>
                 </li>
+                
+                <li className="mb-3">
+                    <Link to="/vendor/add-product/" className={isActiveLink(location.pathname, '/vendor/add-product/') ? "nav-link text-white active" : "nav-link text-white"}>
+                        <i className="bi bi-plus-circle" /> Add Product{" "}
+                    </Link>
+                </li>
+                
                 <li className="mb-3">
                     <Link to="/vendor/orders/" className={isActiveLink(location.pathname, '/vendor/orders/') ? "nav-link text-white active" : "nav-link text-white"}>
                         <i className="bi bi-cart-check" /> Orders{" "}
@@ -37,11 +44,7 @@ function Sidebar() {
                         <i className="bi bi-star" /> Reviews{" "}
                     </Link>
                 </li>
-                <li className="mb-3">
-                    <Link to="/vendor/product/new/" className={isActiveLink(location.pathname, '/vendor/None/') ? "nav-link text-white active" : "nav-link text-white"}>
-                        <i className="bi bi-plus-circle" /> Add Product{" "}
-                    </Link>
-                </li>
+                
 
                 <li className="mb-3">
                     <Link to={`/vendor/coupon/`} className={isActiveLink(location.pathname, '/vendor/coupon/') ? "nav-link text-white active" : "nav-link text-white"}>

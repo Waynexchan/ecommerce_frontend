@@ -353,9 +353,9 @@ function Settings() {
                                   <button className="btn btn-success " type="submit">
                                     Update Shop <i className="fas fa-check-circle" />{" "}
                                   </button>
-                                  <button className="btn btn-primary ms-2" type="submit">
+                                  <Link  to={`/vendor/${vendorData.slug}/`} className="btn btn-primary ms-2" type="submit">
                                     View Shop <i className="fas fa-shop" />{" "}
-                                  </button>
+                                  </Link>
                                 </div>
                               </div>
                             </form>
