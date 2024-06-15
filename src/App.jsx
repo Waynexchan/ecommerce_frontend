@@ -100,7 +100,7 @@ function App() {
             <Route path='/vendor/notifications/' element= {<PrivateRoute><Notification /></PrivateRoute>}/>
             <Route path='/vendor/settings/' element= {<PrivateRoute><VendorSettings /></PrivateRoute>}/>
             <Route path='/vendor/:slug/' element= {<PrivateRoute><Shop /></PrivateRoute>}/>
-            <Route path='/vendor/add-product/' element= {<PrivateRoute><AddProduct /></PrivateRoute>}/>
+            <Route path='/vendor/product/new/' element= {<PrivateRoute><AddProduct /></PrivateRoute>}/>
 
 
           </Routes>

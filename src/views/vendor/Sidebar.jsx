@@ -24,7 +24,7 @@ function Sidebar() {
                 </li>
                 
                 <li className="mb-3">
-                    <Link to="/vendor/add-product/" className={isActiveLink(location.pathname, '/vendor/add-product/') ? "nav-link text-white active" : "nav-link text-white"}>
+                    <Link to="/vendor/product/new/" className={isActiveLink(location.pathname, '/vendor/product/new/') ? "nav-link text-white active" : "nav-link text-white"}>
                         <i className="bi bi-plus-circle" /> Add Product{" "}
                     </Link>
                 </li>

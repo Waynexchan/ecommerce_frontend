@@ -8,12 +8,15 @@ function UserData(){
     if( access_token && refresh_token ){
         const token = refresh_token
         const decoded = jwtDecode(token) //to return user data
-        return decoded
+        return {
+            user_id: decoded.user_id,
+            username: decoded.username,
+            vendor_id: decoded.vendor_id,
+        }
     }else{
         console.log("User Token Does Not Exists")
+        return null;
     }
-
 }
-
 
 export default UserData
