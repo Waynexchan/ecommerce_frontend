@@ -42,6 +42,7 @@ import Notification from './views/vendor/Notification'
 import VendorSettings from './views/vendor/VendorSettings'
 import Shop from './views/vendor/Shop'
 import AddProduct from './views/vendor/AddProduct'
+import UpdateProduct from './views/vendor/UpdateProduct'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -101,6 +102,7 @@ function App() {
             <Route path='/vendor/settings/' element= {<PrivateRoute><VendorSettings /></PrivateRoute>}/>
             <Route path='/vendor/:slug/' element= {<PrivateRoute><Shop /></PrivateRoute>}/>
             <Route path='/vendor/product/new/' element= {<PrivateRoute><AddProduct /></PrivateRoute>}/>
+            <Route path='/vendor/product/update/:pid/' element= {<PrivateRoute><UpdateProduct /></PrivateRoute>}/>
 
 
           </Routes>
