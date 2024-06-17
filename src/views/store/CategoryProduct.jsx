@@ -9,7 +9,7 @@ function CategoryProduct() {
     useEffect(() => {
         apiInstance.get(`products/category/${slug}/`)
             .then((response) => {
-                console.log('API Response:', response.data);  // 调试信息
+                
                 setProducts(response.data);
             })
             .catch((error) => console.error('Error fetching products by category:', error));

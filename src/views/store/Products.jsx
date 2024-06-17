@@ -253,12 +253,12 @@ function Product() {
 
                 <div className="row">
                   {categories.map((category, index) => (
-                                      <div className="col-lg-2" key={index} onClick={() => handleCategoryClick(category.slug)} style={{ cursor: 'pointer' }}>
-                                          <img src={category.image} style={{ width: "100px", height: "100px", borderRadius: "50%", objectFit: "cover" }} alt={category.title} />
-                                          <h6>{category.title}</h6>
-                                      </div>
-                                  ))}
-                  </div>
+                    <div className="col-lg-2" key={index} onClick={() => handleCategoryClick(category.slug)} style={{ cursor: 'pointer' }}>
+                      <img src={category.image} style={{ width: "100px", height: "100px", borderRadius: "50%", objectFit: "cover" }} alt={category.title} />
+                      <h6>{category.title}</h6>
+                    </div>
+                  ))}
+                </div>
               </div>
             </section>
           </div>
