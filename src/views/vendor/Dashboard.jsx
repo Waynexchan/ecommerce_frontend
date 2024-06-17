@@ -5,6 +5,17 @@ import UserData from '../plugin/UserData';
 import { Line, Bar} from 'react-chartjs-2'
 import { Chart } from 'chart.js/auto';
 import { Link } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import moment from 'moment';
+
+
+const Toast = Swal.mixin({
+    toast:true,
+    position:"top",
+    showConfirmButton:false,
+    timer:1500,
+    timerProgressBar:true
+  })
 
 function Dashboard() {
 
@@ -12,6 +23,7 @@ function Dashboard() {
     const [orderChartData, setOrderChartData] = useState([])
     const [productsChartData, setProductsChartData] = useState([])
     const [products, setProducts] =useState([])
+    const [orders, setOrders] =useState([])
 
     useEffect(() => {
         apiInstance.get(`vendor/stats/${UserData()?.vendor_id}/`).then((res) =>{
@@ -20,6 +32,9 @@ function Dashboard() {
 
         apiInstance.get(`vendor/products/${UserData()?.vendor_id}/`).then((res) =>{
             setProducts(res.data)
+        })
+        apiInstance.get(`vendor/orders/${UserData()?.vendor_id}/`).then((res) =>{
+            setOrders(res.data)
         })
     },[])
 
@@ -74,6 +89,17 @@ function Dashboard() {
     }
 
     console.log(product_data);
+
+    const handleDeleteProduct = async (productPid) => {
+        await apiInstance.delete(`vendor-delete-product/${UserData()?.vendor_id}/${productPid}/`)
+        await apiInstance.get(`vendor/products/${UserData()?.vendor_id}/`).then((res) =>{
+            setProducts(res.data)
+        })
+        Toast.fire({
+            icon: 'success',
+            title: 'Product Deleted'
+        })
+    }
 
     return (
         <div className="container-fluid" id="main">
@@ -209,15 +235,15 @@ function Dashboard() {
                                     <td>{p.orders}</td>
                                     <td>{p.status.toUpperCase()}</td>
                                     <td>
-                                    <Link href="" className="btn btn-primary mb-1 me-2">
+                                    <Link to={`/detail/${p.slug}/`} className="btn btn-primary mb-1 me-2">
                                         <i className="fas fa-eye" />
                                     </Link>
-                                    <Link href="" className="btn btn-success mb-1 me-2">
+                                    <Link to={`/vendor/product/update/${p.pid}/`} className="btn btn-success mb-1 me-2">
                                         <i className="fas fa-edit" />
                                     </Link>
-                                    <Link href="" className="btn btn-danger mb-1">
+                                    <button onClick={() => handleDeleteProduct(p.pid)} className="btn btn-danger mb-1">
                                         <i className="fas fa-trash" />
-                                    </Link>
+                                    </button>
                                     </td>
                                 </tr>
                                 ))}
@@ -226,7 +252,7 @@ function Dashboard() {
                             </tbody>
                         </table>
                         </div>
-                        <div role="tabpanel" className="tab-pane" id="profile1">
+                        <div role="tabpanel" className="tab-pane active" id="profile1">
                         <h4>Orders</h4>
                         <table className="table">
                             <thead className="table-dark">
@@ -240,42 +266,22 @@ function Dashboard() {
                             </tr>
                             </thead>
                             <tbody>
-                            <tr>
-                                <th scope="row">#trytrr</th>
-                                <td>$100.90</td>
-                                <td>Paid</td>
-                                <td>Shipped</td>
-                                <td>20th June, 2023</td>
-                                <td>
-                                <a href="" className="btn btn-primary mb-1">
-                                    <i className="fas fa-eye" />
-                                </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="row">#hjkjhkhk</th>
-                                <td>$210.90</td>
-                                <td>Pending</td>
-                                <td>Not Shipped</td>
-                                <td>21th June, 2023</td>
-                                <td>
-                                <a href="" className="btn btn-primary mb-1">
-                                    <i className="fas fa-eye" />
-                                </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="row">#retrey</th>
-                                <td>$260.90</td>
-                                <td>Failed</td>
-                                <td>Not Shipped</td>
-                                <td>25th June, 2023</td>
-                                <td>
-                                <a href="" className="btn btn-primary mb-1">
-                                    <i className="fas fa-eye" />
-                                </a>
-                                </td>
-                            </tr>
+                                {orders?.map((o, index) => (
+                                    <tr key={index}>
+                                    <th scope="row">#{o.oid}</th>
+                                    <td>${o.total}</td>
+                                    <td>{o.payment_status?.toUpperCase()}</td>
+                                    <td>{o.order_status?.toUpperCase()}</td>
+                                    <td>{moment(o.date).format("MMM DD, YYYY")}</td>
+                                    <td>
+                                        <Link to={`/vendor/orders/${o.oid}/`} className="btn btn-primary mb-1">
+                                            <i className="fas fa-eye"></i>
+                                        </Link>
+                                    </td>
+                                </tr>
+                                ))}
+                                
+                            
                             </tbody>
                         </table>
                         </div>

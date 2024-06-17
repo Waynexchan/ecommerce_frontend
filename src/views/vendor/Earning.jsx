@@ -79,7 +79,7 @@ function Earning() {
                             <th scope="col">Month</th>
                             <th scope="col">Orders</th>
                             <th scope="col">Revenue</th>
-                            <th scope="col">Action</th>
+                            {/* <th scope="col">Action</th> */}
                         </tr>
                         </thead>
                         <tbody>

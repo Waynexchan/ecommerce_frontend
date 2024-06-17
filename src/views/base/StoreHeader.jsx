@@ -175,7 +175,7 @@ function StoreHeader() {
                         
                         {isLoggedIn() ? (
                             <>
-                                <Link className="btn btn-primary me-2" to="/dashboard">Dashboard</Link>
+                                <Link className="btn btn-primary me-2" to="vendor/dashboard">Dashboard</Link>
                                 <button className="btn btn-primary me-2" onClick={handleLogout}>Logout</button>
                             </>
                         ) : (

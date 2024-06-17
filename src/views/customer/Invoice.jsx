@@ -19,7 +19,9 @@ function Invoice() {
         }
     }, [userData?.user_id, param.order_oid]);
 
-   
+    const handlePrint = () => {
+        window.print();
+    };
 
     return (
         <div>
@@ -42,16 +44,16 @@ function Invoice() {
                                     <div className="col-xs-12 col-sm-12 col-md-12 text-left">
                                         <div className="receipt-right">
                                             <h5 className="margin-top-10">
-                                                Desphixs<span className="text-warning">.</span>
+                                                S & W Luxury 9195<span className="text-warning">.</span>
                                             </h5>
                                             <p>
-                                                <i className="fa fa-phone" /> +1 3649-6589
+                                                <i className="fa fa-phone" /> +852 60614857
                                             </p>
                                             <p>
-                                                <i className="fa fa-envelope" /> company@gmail.com
+                                                <i className="fa fa-envelope" /> cs@swluxury9195.com
                                             </p>
                                             <p>
-                                                <i className="fa fa-location-arrow" /> 123 Main Street
+                                                <i className="fa fa-location-arrow" /> Hong Kong
                                             </p>
                                         </div>
                                     </div>
@@ -162,7 +164,7 @@ function Invoice() {
                         </div>
                         <hr />
                         <div className="d-flex justify-content-center align-items-center">
-                            <button id="printButton" className="btn btn-dark">
+                            <button onClick={handlePrint} id="printButton" className="btn btn-dark">
                                 Print <i className="fas fa-print" />
                             </button>
                         </div>

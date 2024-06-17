@@ -13,6 +13,7 @@ function ProductDetail() {
     const [product, setProduct] = useState({});
     const [error, setError] = useState(null);
     const [specifications, setSpecifications] = useState([]);
+    const [vendor, setVendor] = useState([]);
     const [gallery, setGallery] = useState([]);
     const [color, setColor] = useState([]);
     const [size, setSize] = useState([]);
@@ -43,6 +44,7 @@ function ProductDetail() {
                 setGallery(res.data.gallery);
                 setSize(res.data.size);
                 setColor(res.data.color);
+                setVendor(res.data.vendor);
             })
             .catch((err) => {
                 console.error('Error fetching product details:', err);
@@ -340,7 +342,7 @@ function ProductDetail() {
                             <div className="row g-0">
                                 <div className="col-md-4">
                                     <img
-                                        src="https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250"
+                                        src={vendor?.image}
                                         style={{
                                             height: "100%",
                                             width: "100%",
@@ -352,8 +354,8 @@ function ProductDetail() {
                                 </div>
                                 <div className="col-md-8">
                                     <div className="card-body">
-                                        <h5 className="card-title">John Doe</h5>
-                                        <p className="card-text">Frontend Developer</p>
+                                        <h5 className="card-title">{vendor?.name}</h5>
+                                        <p className="card-text">{vendor?.description}</p>
                                     </div>
                                 </div>
                             </div>

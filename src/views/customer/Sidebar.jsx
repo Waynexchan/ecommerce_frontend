@@ -25,7 +25,7 @@ function Sidebar() {
                             <div className="text-center">
                             <h3 className="mb-0">{profile.full_name}</h3>
                             <p className="mt-0">
-                                <a href="">Edit Account</a>
+                                <Link to={`/customer/settings/`}>Edit Account</Link>
                             </p>
                             </div>
                         </div>

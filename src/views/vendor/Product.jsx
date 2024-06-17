@@ -5,7 +5,7 @@ import UserData from '../plugin/UserData';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
-const Toast = swal.mixin({
+const Toast = Swal.mixin({
     toast:true,
     position:"top",
     showConfirmButton:false,
@@ -15,6 +15,7 @@ const Toast = swal.mixin({
 
 function Product() {
     const [products, setProducts] =useState([])
+    const userData = UserData()
 
     useEffect(() => {
         apiInstance.get(`vendor/products/${UserData()?.vendor_id}/`).then((res) =>{
@@ -33,7 +34,15 @@ function Product() {
         })
     }
 
+    const handleFilterProduct = async (param) => {
+        try {
+            const response = await apiInstance.get(`vendor-product-filter/${userData?.vendor_id}?filter=${param}`)
+            setProducts(response.data);
 
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     return (
         <div className="container-fluid" id="main">
@@ -56,32 +65,43 @@ function Product() {
                     Filter <i className="fas fa-sliders" />
                     </button>
                     <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                    <li>
-                        <a className="dropdown-item" href="#">
-                        Status: Live
-                        </a>
-                    </li>
-                    <li>
-                        <a className="dropdown-item" href="#">
-                        Status: In-active
-                        </a>
-                    </li>
-                    <li>
-                        <a className="dropdown-item" href="#">
-                        Status: In-review
-                        </a>
-                    </li>
-                    <hr />
-                    <li>
-                        <a className="dropdown-item" href="#">
-                        Date: Latest
-                        </a>
-                    </li>
-                    <li>
-                        <a className="dropdown-item" href="#">
-                        Date: Oldest
-                        </a>
-                    </li>
+                        <li>
+                            <button className="dropdown-item" onClick={() => handleFilterProduct('no-filter')}>
+                                No Filter
+                            </button>
+                        </li>
+                        <li>
+                            <button className="dropdown-item" onClick={() => handleFilterProduct('published')}>
+                                Status: Published
+                            </button>
+                        </li>
+                        <li>
+                            <button className="dropdown-item" onClick={() => handleFilterProduct('draft')}>
+                                Status: In Draft
+                            </button>
+                        </li>
+                        <li>
+                            <button className="dropdown-item" onClick={() => handleFilterProduct('in-review')}>
+                                Status: In-review
+                            </button>
+                        </li>
+                        <li>
+                            <button className="dropdown-item" onClick={() => handleFilterProduct('disabled')}>
+                                Status: Disabled
+                            </button>
+                        </li>
+
+                        <hr />
+                        <li>
+                            <button className="dropdown-item" onClick={() => handleFilterProduct('latest')}>
+                                Date: Latest
+                            </button>
+                        </li>
+                        <li>
+                            <button className="dropdown-item" onClick={() => handleFilterProduct('oldest')}>
+                                Date: Oldest
+                            </button>
+                        </li>
                     </ul>
                 </div>
                 <table className="table">
