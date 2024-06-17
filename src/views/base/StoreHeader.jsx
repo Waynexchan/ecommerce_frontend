@@ -32,7 +32,7 @@ function StoreHeader() {
             <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
                 <div className="container">
                     <Link className="navbar-brand" to="/">
-                        Wayne e-commerce
+                        S & W Luxury 9195 
                     </Link>
                     <button
                         className="navbar-toggler"

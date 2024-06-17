@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import apiInstance from '../../utils/axios';
 import GetCurrentAddress from '../plugin/UserCountry';
 import UserData from '../plugin/UserData';
@@ -18,6 +18,7 @@ const Toast = Swal.mixin({
 function Product() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const navigate = useNavigate();
 
   const [colorValue, setColorValue] = useState('No Color');
   const [sizeValue, setSizeValue] = useState('No Size');
@@ -114,6 +115,10 @@ function Product() {
     } catch (error) {
       console.error('Error adding to wishlist:', error);
     }
+  };
+
+  const handleCategoryClick = (slug) => {
+    navigate(`/products/category/${slug}`);
   };
 
   return (
@@ -248,16 +253,12 @@ function Product() {
 
                 <div className="row">
                   {categories.map((category, index) => (
-                    <div className="col-lg-2" key={index}>
-                      <img
-                        src={category.image}
-                        style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover' }}
-                        alt={category.title}
-                      />
-                      <h6>{category.title}</h6>
-                    </div>
-                  ))}
-                </div>
+                                      <div className="col-lg-2" key={index} onClick={() => handleCategoryClick(category.slug)} style={{ cursor: 'pointer' }}>
+                                          <img src={category.image} style={{ width: "100px", height: "100px", borderRadius: "50%", objectFit: "cover" }} alt={category.title} />
+                                          <h6>{category.title}</h6>
+                                      </div>
+                                  ))}
+                  </div>
               </div>
             </section>
           </div>

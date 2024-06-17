@@ -66,10 +66,9 @@ function StoreFooter() {
                 <strong>About us</strong>
               </p>
               <p>
-                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Iste atque
-                ea quis molestias. Fugiat pariatur maxime quis culpa corporis vitae
-                repudiandae aliquam voluptatem veniam, est atque cumque eum delectus
-                sint!
+              We specialize in sourcing and delivering exclusive, high-end products from the world’s most prestigious brands. 
+              Our mission is to provide discerning clients with access to the latest collections and limited-edition items, 
+              ensuring a seamless and personalized shopping experience.
               </p>
             </div>
             {/*Grid column*/}

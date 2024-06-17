@@ -43,6 +43,7 @@ import VendorSettings from './views/vendor/VendorSettings'
 import Shop from './views/vendor/Shop'
 import AddProduct from './views/vendor/AddProduct'
 import UpdateProduct from './views/vendor/UpdateProduct'
+import CategoryProduct from './views/store/CategoryProduct';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -78,6 +79,7 @@ function App() {
             <Route path='/checkout/:order_oid/' element= {<Checkout />}/>
             <Route path='/payment-success/:order_oid/' element= {<PaymentSuccess />}/>
             <Route path='/search/' element= {<Search />}/>
+            <Route path='/products/category/:slug/' element={<CategoryProduct />} />
 
             {/* Customer Routes */}
             <Route path='/customer/account/' element= {<PrivateRoute><Account /></PrivateRoute>}/>
