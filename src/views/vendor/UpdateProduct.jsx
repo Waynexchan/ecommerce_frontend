@@ -73,9 +73,12 @@ function UpdateProduct() {
     };
     
     const handleProductInputChange = (event) => {
+        const { name, value } = event.target;
         setProduct({
             ...product,
-            [event.target.name]: event.target.value,
+            [name]: name === 'price' || name === 'old_price' || name === 'shipping_amount' || name === 'stock_qty'
+                ? parseFloat(value)
+                : value,
         });
     };
 
@@ -121,11 +124,11 @@ function UpdateProduct() {
         const formData = new FormData();
         formData.append('title', product.title);
         formData.append('description', product.description);
-        formData.append('category', product.category);
-        formData.append('price', product.price);
-        formData.append('old_price', product.old_price);
-        formData.append('shipping_amount', product.shipping_amount);
-        formData.append('stock_qty', product.stock_qty);
+        formData.append('category', product.category.id || product.category); // Ensure category is sent correctly
+        formData.append('price', parseFloat(product.price));
+        formData.append('old_price', parseFloat(product.old_price));
+        formData.append('shipping_amount', parseFloat(product.shipping_amount));
+        formData.append('stock_qty', parseInt(product.stock_qty, 10));
     
         // Add product image if it exists
         if (product.image && product.image.file) {
@@ -147,10 +150,15 @@ function UpdateProduct() {
             }
         });
     
-        // Add sizes
+        // Add sizes and ensure the price is a valid number
         sizes.forEach((size, index) => {
             formData.append(`sizes[${index}][name]`, size.name);
-            formData.append(`sizes[${index}][price]`, size.price);
+            const sizePrice = parseFloat(size.price);
+            if (!isNaN(sizePrice)) {
+                formData.append(`sizes[${index}][price]`, sizePrice);
+            } else {
+                console.warn(`Skipping size with invalid price: ${size.price}`);
+            }
         });
     
         // Add gallery images
@@ -177,6 +185,8 @@ function UpdateProduct() {
             console.error(error);
         }
     };
+    
+    
     
     return (
         <div className="container-fluid" id="main">

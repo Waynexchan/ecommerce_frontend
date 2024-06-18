@@ -44,6 +44,11 @@ import Shop from './views/vendor/Shop'
 import AddProduct from './views/vendor/AddProduct'
 import UpdateProduct from './views/vendor/UpdateProduct'
 import CategoryProduct from './views/store/CategoryProduct';
+import ReturnPolicy from './footer/ReturnPolicy';
+import Complaints from './footer/Complaints';
+import HelpCenter from './footer/HelpCenter';
+import Payment from './footer/Payment';
+
 
 function App() {
   const [count, setCount] = useState(0)
@@ -106,6 +111,11 @@ function App() {
             <Route path='/vendor/product/new/' element= {<PrivateRoute><AddProduct /></PrivateRoute>}/>
             <Route path='/vendor/product/update/:pid/' element= {<PrivateRoute><UpdateProduct /></PrivateRoute>}/>
 
+            {/* footer */}
+            <Route path="/return-policy" element={<ReturnPolicy />} />
+            <Route path="/complaints" element={<Complaints />} />
+            <Route path="/help-center" element={<HelpCenter />} />
+            <Route path="/payment" element={<Payment />} />
 
           </Routes>
 

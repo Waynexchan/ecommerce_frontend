@@ -13,7 +13,7 @@ function EditCoupon() {
     useEffect(() => {
         apiInstance.get(`vendor-coupon-detail/${UserData()?.vendor_id}/${param.coupon_id}/`).then((res) =>{
             setCoupon(res.data)
-            console.log(res.data)
+            
         })
     },[])
 
@@ -36,14 +36,14 @@ function EditCoupon() {
         formdata.append('active', coupon.active)
 
         await apiInstance.patch(`vendor-coupon-detail/${UserData()?.vendor_id}/${param.coupon_id}/`, formdata).then((res) => {
-            console.log(res.data)
+            Swal.fire({
+                icon: 'success',
+                title: "Coupon Updated"
+            });
         })
 
 
-        Swal.fire({
-            icon: 'success',
-            title: "Coupon Updated"
-        });
+        
     }
 
 
@@ -69,9 +69,9 @@ function EditCoupon() {
                                 placeholder='Enter Coupon Code'
                                 value={coupon.code}
                                 onChange={handleCouponChange}
-                            />
+                            />  
                             <div id="emailHelp" className="form-text">
-                                E.g DESTINY2024
+                                E.g BigSale2024
                             </div>
                         </div>
                         <div className="mb-3 mt-4">
