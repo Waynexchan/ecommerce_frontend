@@ -1,13 +1,20 @@
-import { useState, useEffect , useContext} from 'react'
-import { useParams } from 'react-router-dom'
-import apiInstance from '../../utils/axios'
+import { useState, useEffect, useContext, useRef } from 'react';
+import { useParams } from 'react-router-dom';
+import apiInstance from '../../utils/axios';
 import GetCurrentAddress from '../plugin/UserCountry';
 import UserData from '../plugin/UserData';
 import CartID from '../plugin/CartID';
-import moment from 'moment'
+import moment from 'moment';
+import Swal from 'sweetalert2';
 import { CartContext } from '../plugin/Context';
 
-
+const Toast = Swal.mixin({
+  toast: true,
+  position: 'top',
+  showConfirmButton: false,
+  timer: 1500,
+  timerProgressBar: true,
+});
 
 function ProductDetail() {
     const [product, setProduct] = useState({});
@@ -19,25 +26,20 @@ function ProductDetail() {
     const [size, setSize] = useState([]);
     const [colorValue, setColorValue] = useState("No Color");
     const [sizeValue, setSizeValue] = useState("No Size");
-    const [qtyValue, setQtyValue] = useState(1)
+    const [qtyValue, setQtyValue] = useState(1);
     const [reviews, setReviews] = useState([]);
-    const [createReview, setCreateReview ] = useState({
-        user_id: 0, product_id: product?.id, review: "", rating : 0
-    })
-
-    const [cartCount, setCartCount] = useContext(CartContext)
-
-    const param = useParams(); // grab the parameter
-    const currentAddress = GetCurrentAddress(); //call the function
-    const userData = UserData() //to grab information from token
-    const cart_id = CartID() //create random cart_id
-
-    
-   
-
+    const [createReview, setCreateReview] = useState({
+        user_id: 0, product_id: product?.id, review: "", rating: 0
+    });
+    const [cartCount, setCartCount] = useContext(CartContext);
+    const param = useParams();
+    const currentAddress = GetCurrentAddress();
+    const userData = UserData();
+    const cart_id = CartID();
+    const reviewsRef = useRef(null);
 
     useEffect(() => {
-        apiInstance.get(`products/${param.slug}/`) // to grab the parameter and put into the URL
+        apiInstance.get(`products/${param.slug}/`)
             .then((res) => {
                 setProduct(res.data);
                 setSpecifications(res.data.specification);
@@ -52,8 +54,7 @@ function ProductDetail() {
             });
     }, [param.slug]);
 
-
-    const fetchReviewData = async () =>{
+    const fetchReviewData = async () => {
         if (product.id) {
             try {
                 const res = await apiInstance.get(`reviews/${product.id}/`);
@@ -65,11 +66,8 @@ function ProductDetail() {
     }
 
     useEffect(() => {
-        
         fetchReviewData();
     }, [product]);
-
-  
 
     const handleReviewChange = (event) => {
         setCreateReview({
@@ -78,64 +76,83 @@ function ProductDetail() {
         });
     };
 
-    const handleReviewSubmit = (e) =>{
-        e.preventDefault()
+    const handleReviewSubmit = (e) => {
+        e.preventDefault();
 
-        const formdata = new FormData()
-        formdata.append("user_id", userData?.user_id)
-        formdata.append("product_id", product?.id)
-        formdata.append("rating", createReview.rating)
-        formdata.append("review", createReview.review)
+        const formdata = new FormData();
+        formdata.append("user_id", userData?.user_id);
+        formdata.append("product_id", product?.id);
+        formdata.append("rating", createReview.rating);
+        formdata.append("review", createReview.review);
 
-        apiInstance.post(`reviews/${product?.id}/`, formdata).then((res) =>{
-            console.log(res.data)
-            fetchReviewData()
-        })
-    }
-    
+        apiInstance.post(`reviews/${product?.id}/`, formdata).then((res) => {
+            console.log(res.data);
+            fetchReviewData();
+        });
+    };
+
     const handleColorButtonClick = (event) => {
         const colorNameInput = event.target.closest('.color_button').parentNode.querySelector('.color_name');
         setColorValue(colorNameInput.value);
     };
-    
+
     const handleSizeButtonClick = (event) => {
         const sizeNameInput = event.target.closest('.size_button').parentNode.querySelector('.size_name');
         setSizeValue(sizeNameInput.value);
     };
-    
+
     const handleQuantityChange = (event) => {
-        setQtyValue(event.target.value)
+        setQtyValue(event.target.value);
     }
 
     const handleAddToCart = async () => {
-        
         try {
-            const formdata = new FormData()
+            const formdata = new FormData();
+            formdata.append("product_id", product.id);
+            formdata.append("user_id", userData?.user_id);
+            formdata.append("qty", qtyValue);
+            formdata.append("price", product.price);
+            formdata.append("shipping_amount", product.shipping_amount);
+            formdata.append("country", currentAddress.country);
+            formdata.append("size", sizeValue);
+            formdata.append("color", colorValue);
+            formdata.append("cart_id", cart_id);
 
-            formdata.append("product_id", product.id)
-            formdata.append("user_id", userData?.user_id)
-            formdata.append("qty", qtyValue)
-            formdata.append("price", product.price)
-            formdata.append("shipping_amount", product.shipping_amount)
-            formdata.append("country", currentAddress.country)
-            formdata.append("size", sizeValue)
-            formdata.append("color", colorValue)
-            formdata.append("cart_id", cart_id)
+            const response = await apiInstance.post(`cart-view/`, formdata);
+            console.log(response.data);
 
-            // Make a post request to the cart api view
-            await apiInstance.post(`cart-view/`, formdata)
-           
-            // Fetch updated cart item
             const url = userData ? `cart-list/${cart_id}/${userData?.user_id}` : `cart-list/${cart_id}/`;
-            apiInstance.get(url).then((res) =>{
-                setCartCount(res.data.length)
-            })
+            const cartResponse = await apiInstance.get(url);
+            setCartCount(cartResponse.data.length);
 
+            Toast.fire({
+                icon: 'success',
+                title: response.data.message,
+            });
         } catch (error) {
             console.log(error);
         }
-        
     }
+
+    const addToWishlist = async () => {
+        try {
+            const formData = new FormData();
+            formData.append('product_id', product.id);
+            formData.append('user_id', userData?.user_id);
+
+            const response = await apiInstance.post(`customer/wishlist/${userData?.user_id}/`, formData);
+            console.log(response.data);
+
+            Swal.fire({
+                icon: 'success',
+                title: response.data.message,
+            });
+        } catch (error) {
+            console.error('Error adding to wishlist:', error);
+        }
+    };
+
+    const averageRating = reviews.length > 0 ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1) : 0;
 
     if (error) {
         return <div>{error}</div>;
@@ -145,17 +162,19 @@ function ProductDetail() {
         return <div>Loading...</div>;
     }
 
-    
-    
+    const handleScrollToReviews = (event) => {
+        event.preventDefault();
+        if (reviewsRef.current) {
+            reviewsRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
 
     return (
         <main className="mb-4 mt-4">
             <div className="container">
-                {/* Section: Product details */}
                 <section className="mb-9">
                     <div className="row gx-lg-5">
                         <div className="col-md-6 mb-4 mb-md-0">
-                            {/* Gallery */}
                             <div className="">
                                 <div className="row gx-2 gx-lg-3">
                                     <div className="col-12 col-lg-12">
@@ -192,24 +211,24 @@ function ProductDetail() {
                                     ))}
                                 </div>
                             </div>
-                            {/* Gallery */}
                         </div>
                         <div className="col-md-6 mb-4 mb-md-0">
-                            {/* Details */}
                             <div>
                                 <h1 className="fw-bold mb-3">{product.title}</h1>
-                                <div className="d-flex text-primary just align-items-center">
+                                <div className="d-flex text-primary justify-content-center align-items-center">
                                     <ul className="mb-3 d-flex p-0" style={{ listStyle: "none" }}>
                                         <li>
-                                            <i className="fas fa-star fa-sm text-warning ps-0" title="Bad" />
-                                            <i className="fas fa-star fa-sm text-warning ps-0" title="Bad" />
-                                            <i className="fas fa-star fa-sm text-warning ps-0" title="Bad" />
-                                            <i className="fas fa-star fa-sm text-warning ps-0" title="Bad" />
-                                            <i className="fas fa-star fa-sm text-warning ps-0" title="Bad" />
+                                            {[...Array(5)].map((star, index) => (
+                                                <i
+                                                    key={index}
+                                                    className={`fas fa-star fa-sm ${index < averageRating ? 'text-warning' : 'text-muted'} ps-0`}
+                                                    title={index < averageRating ? "Good" : "Bad"}
+                                                />
+                                            ))}
                                         </li>
                                         <li style={{ marginLeft: 10, fontSize: 13 }}>
-                                            <a href="" className="text-decoration-none">
-                                                <strong className="me-2">4/5</strong>(2 reviews)
+                                            <a href="#pills-contact" className="text-decoration-none" onClick={handleScrollToReviews}>
+                                                <strong className="me-2">{averageRating}/5</strong>({reviews.length} reviews)
                                             </a>
                                         </li>
                                     </ul>
@@ -238,7 +257,6 @@ function ProductDetail() {
                                 <hr className="my-5" />
                                 <form>
                                     <div className="row flex-column">
-                                        {/* Quantity */}
                                         <div className="col-md-6 mb-4">
                                             <div className="form-outline">
                                                 <label className="form-label" htmlFor="typeNumber"><b>Quantity</b></label>
@@ -252,7 +270,6 @@ function ProductDetail() {
                                                 />
                                             </div>
                                         </div>
-                                        {/* Size */}
                                         <div className="col-md-6 mb-4">
                                             <div className="form-outline">
                                                 <label className="form-label" htmlFor="typeNumber"><b>Size:</b> <span>{sizeValue}</span></label>
@@ -270,7 +287,6 @@ function ProductDetail() {
                                                 ))}
                                             </div>
                                         </div>
-                                        {/* Colors */}
                                         <div className="col-md-6 mb-4">
                                             <div className="form-outline">
                                                 <label className="form-label" htmlFor="typeNumber"><b>Color:</b> <span>{colorValue}</span></label>
@@ -297,11 +313,11 @@ function ProductDetail() {
                                         </div>
                                     </div>
                                     <button type="button" className="btn btn-primary btn-block me-2"
-                                    onClick={handleAddToCart}
+                                        onClick={handleAddToCart}
                                     >
                                         <i className="fas fa-cart-plus me-2" /> Add to cart
                                     </button>
-                                    <button href="#!" type="button" className="btn btn-danger btn-floating" data-mdb-toggle="tooltip" title="Add to wishlist">
+                                    <button type="button" className="btn btn-danger btn-floating" data-mdb-toggle="tooltip" title="Add to wishlist" onClick={addToWishlist}>
                                         <i className="fas fa-heart" />
                                     </button>
                                 </form>
@@ -309,7 +325,6 @@ function ProductDetail() {
                         </div>
                     </div>
                 </section>
-                {/* Section: Product details */}
                 <hr />
                 <ul className="nav nav-pills mb-3" id="pills-tab" role="tablist">
                     <li className="nav-item" role="presentation">
@@ -361,10 +376,9 @@ function ProductDetail() {
                             </div>
                         </div>
                     </div>
-                    <div className="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab" tabIndex={0}>
+                    <div className="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab" tabIndex={0} ref={reviewsRef}>
                         <div className="container mt-5">
                             <div className="row">
-                                {/* Column 1: Form to create a new review */}
                                 <div className="col-md-6">
                                     <h2>Create a New Review</h2>
                                     <form onSubmit={handleReviewSubmit}>
@@ -393,68 +407,36 @@ function ProductDetail() {
                                         <button type="submit" className="btn btn-primary">Submit Review</button>
                                     </form>
                                 </div>
-                                {/* Column 2: Display existing reviews */}
                                 <div className="col-md-6">
                                     <h2>Existing Reviews</h2>
                                     <div className=" mb-3">
-                                        {reviews?.map((r, index) =>(
+                                        {reviews?.map((r, index) => (
                                             <div className="row border p-2 g-0" key={index}>
-                                            <div className="col-md-3">
-                                                <img
-                                                    src={r.profile.image}
-                                                    alt="User Image"
-                                                    className="img-fluid"
-                                                />
-                                            </div>
-                                            <div className="col-md-9">
-                                                <div className="card-body">
-                                                    <h5 className="card-title">{r.profile.full_name}</h5>
-                                                    <p className="card-text">{moment(r.date).format("MMM D, YYYY ")}</p>
-                                                    <p className="card-text">
-                                                        {r.review} <br/>
-                                                        {r.rating === 1 && 
-                                                            <i className='fas fa-star'></i>
-                                                        }
-                                                        {r.rating === 2 && 
-                                                            <>
-                                                            <i className='fas fa-star'></i>
-                                                            <i className='fas fa-star'></i>
-                                                            </>
-                                                        }
-                                                        {r.rating === 3 && 
-                                                            <>
-                                                            <i className='fas fa-star'></i>
-                                                            <i className='fas fa-star'></i>
-                                                            <i className='fas fa-star'></i>
-                                                            </>
-                                                        }
-                                                        {r.rating === 4 && 
-                                                            <>
-                                                            <i className='fas fa-star'></i>
-                                                            <i className='fas fa-star'></i>
-                                                            <i className='fas fa-star'></i>
-                                                            <i className='fas fa-star'></i>
-                                                            </>
-                                                        }
-                                                        {r.rating === 5 && 
-                                                            <>
-                                                            <i className='fas fa-star'></i>
-                                                            <i className='fas fa-star'></i>
-                                                            <i className='fas fa-star'></i>
-                                                            <i className='fas fa-star'></i>
-                                                            <i className='fas fa-star'></i>
-                                                            </>
-                                                        }
-                                                    
-                                                    </p>
+                                                <div className="col-md-3">
+                                                    <img
+                                                        src={r.profile.image}
+                                                        alt="User Image"
+                                                        className="img-fluid"
+                                                    />
+                                                </div>
+                                                <div className="col-md-9">
+                                                    <div className="card-body">
+                                                        <h5 className="card-title">{r.profile.full_name}</h5>
+                                                        <p className="card-text">{moment(r.date).format("MMM D, YYYY ")}</p>
+                                                        <p className="card-text">
+                                                            {r.review} <br />
+                                                            {[...Array(5)].map((star, idx) => (
+                                                                <i
+                                                                    key={idx}
+                                                                    className={`fas fa-star ${idx < r.rating ? 'text-warning' : 'text-muted'}`}
+                                                                />
+                                                            ))}
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
                                         ))}
-                                        
                                     </div>
-                                    
-                                    {/* More reviews can be added here */}
                                 </div>
                             </div>
                         </div>
@@ -462,8 +444,7 @@ function ProductDetail() {
                 </div>
             </div>
         </main>
-      );
-    }
-    
-    export default ProductDetail;
-    
+    );
+}
+
+export default ProductDetail;
