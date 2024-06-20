@@ -15,9 +15,10 @@ const Toast = Swal.mixin({
   timerProgressBar: true,
 });
 
-function Product() {
+function Products() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [cache, setCache] = useState({});
   const navigate = useNavigate();
 
   const [colorValue, setColorValue] = useState('No Color');
@@ -54,26 +55,36 @@ function Product() {
   };
 
   useEffect(() => {
-    apiInstance.get('products/')
-      .then((response) => {
-        setProducts(response.data);
-      })
-      .catch((error) => console.error('Error fetching products:', error));
-  }, []);
+    if (cache['products']) {
+      setProducts(cache['products']);
+    } else {
+      apiInstance.get('products/')
+        .then((response) => {
+          setProducts(response.data);
+          setCache((prevCache) => ({ ...prevCache, 'products': response.data }));
+        })
+        .catch((error) => console.error('Error fetching products:', error));
+    }
+  }, [cache]);
 
   useEffect(() => {
-    apiInstance.get('category/')
-      .then((response) => {
-        setCategories(response.data);
-      })
-      .catch((error) => console.error('Error fetching categories:', error));
-  }, []);
+    if (cache['categories']) {
+      setCategories(cache['categories']);
+    } else {
+      apiInstance.get('category/')
+        .then((response) => {
+          setCategories(response.data);
+          setCache((prevCache) => ({ ...prevCache, 'categories': response.data }));
+        })
+        .catch((error) => console.error('Error fetching categories:', error));
+    }
+  }, [cache]);
 
   const handleAddToCart = async (productId, price, shippingAmount) => {
     const formData = new FormData();
 
     formData.append('product_id', productId);
-    formData.append('user_id', userData?.user_id);
+    formData.append('user_id', userData?.user_id || "0");  // Set default value if user is not logged in
     formData.append('qty', quantityValue);
     formData.append('price', price);
     formData.append('shipping_amount', shippingAmount);
@@ -138,6 +149,7 @@ function Product() {
                             className="w-100"
                             style={{ width: '100%', height: '250px', objectFit: 'cover' }}
                             alt={product.title}
+                            loading="lazy"  // Lazy load images
                           />
                         </Link>
                       </div>
@@ -145,7 +157,7 @@ function Product() {
                         <Link to={`/detail/${product.slug}/`} className="text-reset">
                           <h5 className="card-title mb-3">{product.title}</h5>
                         </Link>
-                        <a href="" className="text-reset">
+                        <a href="#" className="text-reset">
                           <p>{product.category?.title}</p>
                         </a>
                         <div className="d-flex justify-content-center">
@@ -268,4 +280,4 @@ function Product() {
   );
 }
 
-export default Product;
+export default Products;

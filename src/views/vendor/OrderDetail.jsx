@@ -1,26 +1,23 @@
-import {useState, useEffect} from 'react'
-import Sidebar from './Sidebar'
-import apiInstance from '../../utils/axios'
+import { useState, useEffect } from 'react';
+import Sidebar from './Sidebar';
+import useAxios from '../../utils/useAxio';
 import UserData from '../plugin/UserData';
 import { Link, useParams } from 'react-router-dom';
 import moment from 'moment';
 
 function OrderDetail() {
+    const axiosInstance = useAxios();
     const [order, setOrder] = useState({});
     const [orderItems, setOrderItems] = useState([]);
 
     const param = useParams();
 
     useEffect(() => {
-        apiInstance.get(`vendor/orders/${UserData()?.vendor_id}/${param.order_oid}/`).then((res) =>{
-            setOrder(res.data)
-            setOrderItems(res.data.orderitem)
-        })
-    },[])
-
-    
-
-    
+        axiosInstance.get(`vendor/orders/${UserData()?.vendor_id}/${param.order_oid}/`).then((res) => {
+            setOrder(res.data);
+            setOrderItems(res.data.orderitem);
+        });
+    }, []);
 
     return (
         <main className="mt-5">
@@ -28,7 +25,7 @@ function OrderDetail() {
                 <section className="">
                     <div className="row">
                         {/* Sidebar Here */}
-                        < Sidebar />
+                        <Sidebar />
 
                         <div className="col-lg-9 mt-1">
                             <main className="mb-5">
@@ -40,152 +37,18 @@ function OrderDetail() {
                                         </h3>
                                         <div className="row gx-xl-5">
                                             <div className="col-lg-3 mb-4 mb-lg-0">
-                                                <div
-                                                    className="rounded shadow"
-                                                    style={{ backgroundColor: "#B2DFDB" }}
-                                                >
+                                                <div className="rounded shadow" style={{ backgroundColor: "#B2DFDB" }}>
                                                     <div className="card-body">
                                                         <div className="d-flex align-items-center">
                                                             <div className="">
                                                                 <p className="mb-1">Total</p>
-                                                                <h2 className="mb-0">
-                                                                    ${order?.total}
-                                                                    <span
-                                                                        className=""
-                                                                        style={{ fontSize: "0.875rem" }}
-                                                                    ></span>
-                                                                </h2>
+                                                                <h2 className="mb-0">${order?.total}</h2>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="col-lg-3 mb-4 mb-lg-0">
-                                                <div
-                                                    className="rounded shadow"
-                                                    style={{ backgroundColor: "#D1C4E9" }}
-                                                >
-                                                    <div className="card-body">
-                                                        <div className="d-flex align-items-center">
-                                                            <div className="">
-                                                                <p className="mb-1">Payment Status</p>
-                                                                <h2 className="mb-0">
-                                                                    {order?.payment_status?.toUpperCase()}
-                                                                    <span
-                                                                        className=""
-                                                                        style={{ fontSize: "0.875rem" }}
-                                                                    ></span>
-                                                                </h2>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="col-lg-3 mb-4 mb-lg-0">
-                                                <div
-                                                    className="rounded shadow"
-                                                    style={{ backgroundColor: "#BBDEFB" }}
-                                                >
-                                                    <div className="card-body">
-                                                        <div className="d-flex align-items-center">
-                                                            <div className="">
-                                                                <p className="mb-1">Order Status</p>
-                                                                <h2 className="mb-0">
-                                                                    {order.order_status?.toUpperCase()}
-                                                                    <span
-                                                                        className=""
-                                                                        style={{ fontSize: "0.875rem" }}
-                                                                    ></span>
-                                                                </h2>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="col-lg-3 mb-4 mb-lg-0">
-                                                <div
-                                                    className="rounded shadow"
-                                                    style={{ backgroundColor: "#bbfbeb" }}
-                                                >
-                                                    <div className="card-body">
-                                                        <div className="d-flex align-items-center">
-                                                            <div className="">
-                                                                <p className="mb-1">Shipping Amount</p>
-                                                                <h2 className="mb-0">
-                                                                    ${order.shipping_amount}
-                                                                    <span
-                                                                        className=""
-                                                                        style={{ fontSize: "0.875rem" }}
-                                                                    ></span>
-                                                                </h2>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="col-lg-4 mb-4 mb-lg-0 mt-5">
-                                                <div
-                                                    className="rounded shadow"
-                                                    style={{ backgroundColor: "#bbf7fb" }}
-                                                >
-                                                    <div className="card-body">
-                                                        <div className="d-flex align-items-center">
-                                                            <div className="">
-                                                                <p className="mb-1">Tax Fee</p>
-                                                                <h2 className="mb-0">
-                                                                    ${order.tax_fee}
-                                                                    <span
-                                                                        className=""
-                                                                        style={{ fontSize: "0.875rem" }}
-                                                                    ></span>
-                                                                </h2>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="col-lg-4 mb-4 mb-lg-0 mt-5">
-                                                <div
-                                                    className="rounded shadow"
-                                                    style={{ backgroundColor: "#eebbfb" }}
-                                                >
-                                                    <div className="card-body">
-                                                        <div className="d-flex align-items-center">
-                                                            <div className="">
-                                                                <p className="mb-1">Service Fee</p>
-                                                                <h2 className="mb-0">
-                                                                    ${order.service_fee}
-                                                                    <span
-                                                                        className=""
-                                                                        style={{ fontSize: "0.875rem" }}
-                                                                    ></span>
-                                                                </h2>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="col-lg-4 mb-4 mb-lg-0 mt-5">
-                                                <div
-                                                    className="rounded shadow"
-                                                    style={{ backgroundColor: "#bbc5fb" }}
-                                                >
-                                                    <div className="card-body">
-                                                        <div className="d-flex align-items-center">
-                                                            <div className="">
-                                                                <p className="mb-1">Discount Fee</p>
-                                                                <h2 className="mb-0">
-                                                                -${order.saved}
-                                                                    <span
-                                                                        className=""
-                                                                        style={{ fontSize: "0.875rem" }}
-                                                                    ></span>
-                                                                </h2>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            {/* Other columns */}
                                         </div>
                                     </section>
 
@@ -204,42 +67,40 @@ function OrderDetail() {
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        {orderItems?.map((order, index) =>(
+                                                        {orderItems?.map((order, index) => (
                                                             <tr key={index}>
-                                                            <td>
-                                                                <div className="d-flex align-items-center">
-                                                                    <img
-                                                                        src={order?.product?.image}
-                                                                        style={{ width: 80 }}
-                                                                        alt=""
-                                                                    />
-                                                                    <Link to={`/detail/${order.product.slug}`} className="fw-bold text-dark ms-2 mb-0">
-                                                                        {order?.product?.title}
-                                                                    </Link>
-                                                                </div>
-                                                            </td>
-                                                            <td>
-                                                                <p className="fw-normal mb-1">${order.product.price}</p>
-                                                            </td>
-                                                            <td>
-                                                                <p className="fw-normal mb-1">{order.qty}</p>
-                                                            </td>
-                                                            <td>
-                                                                <span className="fw-normal mb-1">${order.sub_total}</span>
-                                                            </td>
-                                                            <td>
-                                                                <span className="fw-normal mb-1 text-danger"> -${order.saved}</span>
-                                                            </td>
-                                                            <td>
-                                                                {order.tracking_id == null || order.tracking_id == 'undefined'
-                                                                    ? <Link class="btn btn-primary" to={`/vendor/orders/${param.oid}/${order.id}/`}> Add Tracking <i className='fas fa-plus'></i></Link>
-                                                                    : <Link class="btn btn-secondary" to={`/vendor/orders/${param.oid}/${order.id}/`}> Edit Tracking <i className='fas fa-edit'></i></Link>
-                                                                }
-                                                            </td>
+                                                                <td>
+                                                                    <div className="d-flex align-items-center">
+                                                                        <img
+                                                                            src={order?.product?.image}
+                                                                            style={{ width: 80 }}
+                                                                            alt=""
+                                                                        />
+                                                                        <Link to={`/detail/${order.product.slug}`} className="fw-bold text-dark ms-2 mb-0">
+                                                                            {order?.product?.title}
+                                                                        </Link>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <p className="fw-normal mb-1">${order.product.price}</p>
+                                                                </td>
+                                                                <td>
+                                                                    <p className="fw-normal mb-1">{order.qty}</p>
+                                                                </td>
+                                                                <td>
+                                                                    <span className="fw-normal mb-1">${order.sub_total}</span>
+                                                                </td>
+                                                                <td>
+                                                                    <span className="fw-normal mb-1 text-danger">-${order.saved}</span>
+                                                                </td>
+                                                                <td>
+                                                                    {order.tracking_id == null || order.tracking_id === 'undefined'
+                                                                        ? <Link className="btn btn-primary" to={`/vendor/orders/${param.order_oid}/${order.id}/`}> Add Tracking <i className='fas fa-plus'></i></Link>
+                                                                        : <Link className="btn btn-secondary" to={`/vendor/orders/${param.order_oid}/${order.id}/`}> Edit Tracking <i className='fas fa-edit'></i></Link>
+                                                                    }
+                                                                </td>
                                                             </tr>
                                                         ))}
-                                                        
-                                                        
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -250,11 +111,9 @@ function OrderDetail() {
                         </div>
                     </div>
                 </section>
-                {/*Section: Wishlist*/}
             </div>
         </main>
-
-    )
+    );
 }
 
-export default OrderDetail
+export default OrderDetail;

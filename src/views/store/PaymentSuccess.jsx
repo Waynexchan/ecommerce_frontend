@@ -1,6 +1,6 @@
 import {useState, useEffect} from 'react'
 import apiInstance from '../../utils/axios'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 
 function PaymentSuccess() {
     const [order, setOrder] = useState([]);
@@ -98,21 +98,23 @@ function PaymentSuccess() {
                                                 className="btn btn-success mt-3"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#exampleModal"
+                                                
                                             >
                                                 View Order <i className="fas fa-eye" />{" "}
                                             </button>
-                                            <a
-                                                href="/"
+                                            <Link
+                                                to={`/customer/invoice/${order.oid}/`}
                                                 className="btn btn-primary mt-3 ms-2"
                                             >
                                                 Download Invoice{" "}
                                                 <i className="fas fa-file-invoice" />{" "}
-                                            </a>
-                                            <a
+                                            </Link>
+                                            <Link
                                                 className="btn btn-secondary mt-3 ms-2"
+                                                to='/'
                                             >
                                                 Go Home <i className="fas fa-arrow-left" />{" "}
-                                            </a>
+                                            </Link>
                                             </div>
                                         </div>
                                         </div>
@@ -160,18 +162,18 @@ function PaymentSuccess() {
                                             >
                                                 View Order <i className="fas fa-eye" />{" "}
                                             </button>
-                                            <a
-                                                href="/"
+                                            <Link
+                                                to={`/customer/invoice/${order.oid}/`}
                                                 className="btn btn-primary mt-3 ms-2"
                                             >
                                                 Download Invoice{" "}
                                                 <i className="fas fa-file-invoice" />{" "}
-                                            </a>
-                                            <a
-                                                className="btn btn-secondary mt-3 ms-2"
+                                            </Link>
+                                            <Link
+                                                className="btn btn-secondary mt-3 ms-2" to="/"
                                             >
                                                 Go Home <i className="fas fa-arrow-left" />{" "}
-                                            </a>
+                                            </Link>
                                             </div>
                                         </div>
                                         </div>

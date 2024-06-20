@@ -1,80 +1,77 @@
-import { useAuthStore  }  from "../store/auths"; //import axios library
-
-import axios from './axios'
-import jwt_decode from 'jwt-decode'
-import Cookies from 'js-cookie'
-import swal from 'sweetalert2'
+import { useAuthStore } from "../store/auths";
+import axios from './axios';
+import jwt_decode from 'jwt-decode';
+import Cookies from 'js-cookie';
+import swal from 'sweetalert2';
 
 const Toast = swal.mixin({
-    toast:true,
-    position:"top",
-    showConfirmButton:false,
-    timer:1500,
-    timerProgressBar:true
-  })
+    toast: true,
+    position: "top",
+    showConfirmButton: false,
+    timer: 1500,
+    timerProgressBar: true
+});
 
-
-export const login = async (email, password) =>{
-    try{
-        const {data, status} = await axios.post("user/token/", {
+export const login = async (email, password) => {
+    try {
+        const { data, status } = await axios.post("user/token/", {
             email,
             password
-        }) //post to the endpoint
+        });
 
-        if (status === 200){
-            setAuthUser(data.access, data.refresh)
+        if (status === 200) {
+            setAuthUser(data.access, data.refresh);
 
-            //Alert -Sign In Successfully
             Toast.fire({
-                icon:"success",
-                title:"login successfully"
-
-            })
+                icon: "success",
+                title: "Login successfully"
+            });
         }
-        return {data, error: null }
-    }catch (error) {
-        return {
-            data: null,
-            error: error.response.data?.detail || 'Something went wrong'
-        };
-    }
-}
-
-export const register = async (full_name, email, phone, password, password2) =>{
-    try {
-        const { data } = await axios.post('user/register/', {
-            full_name, 
-            email, 
-            phone, 
-            password, 
-            password2
-        })
-
-        await login(email, password)
-
-        //Alert -Signed up Successfully
-        Toast.fire({
-            icon:"success",
-            title:"Account created successfully"
-
-        })
-
-        return {data, error: null}
+        return { data, error: null };
     } catch (error) {
         return {
             data: null,
             error: error.response.data?.detail || 'Something went wrong'
         };
     }
-}
+};
 
-export const logout = () =>{
-    Cookies.remove("access_token")
-    Cookies.remove("refresh_token")
-    useAuthStore.getState().setUser(null)
+export const register = async (full_name, email, phone, password, password2) => {
+    try {
+        const { data } = await axios.post('user/register/', {
+            full_name,
+            email,
+            phone,
+            password,
+            password2
+        });
 
-    // Alert - Signed Out Successfully
-}
+        await login(email, password);
+
+        Toast.fire({
+            icon: "success",
+            title: "Account created successfully"
+        });
+
+        return { data, error: null };
+    } catch (error) {
+        return {
+            data: null,
+            error: error.response.data?.detail || 'Something went wrong'
+        };
+    }
+};
+
+export const logout = () => {
+    Cookies.remove("access_token");
+    Cookies.remove("refresh_token");
+    useAuthStore.getState().setUser(null);
+
+    Toast.fire({
+        icon: "success",
+        title: "Logged out successfully"
+    });
+};
 
 export const setUser = async () => {
     try {
@@ -97,42 +94,39 @@ export const setUser = async () => {
 };
 
 export const setAuthUser = (access_token, refresh_token) => {
-    // Setting access and refresh tokens in cookies with expiration dates
     Cookies.set('access_token', access_token, {
-        expires: 1,  // Access token expires in 1 day
+        expires: 1,
         secure: true,
     });
 
     Cookies.set('refresh_token', refresh_token, {
-        expires: 7,  // Refresh token expires in 7 days
+        expires: 7,
         secure: true,
     });
 
-    // Decoding access token to get user information
     const user = jwt_decode(access_token) ?? null;
 
-    // If user information is present, update user state; otherwise, set loading state to false
     if (user) {
         useAuthStore.getState().setUser(user);
     }
     useAuthStore.getState().setLoading(false);
 };
 
-export const getRefreshToken = async () =>{
-    const refresh_token = Cookies.get("refresh_token")
+export const getRefreshToken = async () => {
+    const refresh_token = Cookies.get("refresh_token");
     const response = await axios.post("user/token/refresh/", {
         refresh: refresh_token
-    })
+    });
 
-    return response.data
-}
+    return response.data;
+};
 
-export const isAccessTokenExpired = (accessToken) =>{
+export const isAccessTokenExpired = (accessToken) => {
     try {
-        const decodedToken = jwt_decode(accessToken)
-        return decodedToken.exp < Date.now() /100
+        const decodedToken = jwt_decode(accessToken);
+        return decodedToken.exp < Date.now() / 1000;
     } catch (error) {
         console.log(error);
-        return true
+        return true;
     }
-}
+};

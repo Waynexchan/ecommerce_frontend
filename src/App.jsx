@@ -48,22 +48,20 @@ import ReturnPolicy from './footer/ReturnPolicy';
 import Complaints from './footer/Complaints';
 import HelpCenter from './footer/HelpCenter';
 import Payment from './footer/Payment';
+import Tracking from './views/vendor/Tracking';
 
 
 function App() {
-  const [count, setCount] = useState(0)
-  const [cartCount, setCartCount] = useState()
+  const [cartCount, setCartCount] = useState();
+  const cart_id = CartID();
+  const userData = UserData();
 
-  const cart_id = CartID()
-  const userData = UserData()
-
-  useEffect(() =>{
-    const url = userData ? `cart-list/${cart_id}/${userData?.user_id}` : `cart-list/${cart_id}/`;
-    apiInstance.get(url).then((res) =>{
-      setCartCount(res.data.length)
-    })
-
-  },[])
+  useEffect(() => {
+      const url = userData ? `cart-list/${cart_id}/${userData?.user_id}` : `cart-list/${cart_id}/`;
+      apiInstance.get(url).then((res) => {
+          setCartCount(res.data.length);
+      });
+  }, []);
 
   return (
     <CartContext.Provider value={([cartCount, setCartCount])}>
@@ -100,6 +98,7 @@ function App() {
             <Route path='/vendor/products/' element= {<PrivateRoute><Product /></PrivateRoute>}/>
             <Route path='/vendor/orders/' element= {<PrivateRoute><VendorOrders /></PrivateRoute>}/>
             <Route path='/vendor/orders/:order_oid/' element= {<PrivateRoute><VendorOrderDetail /></PrivateRoute>}/>
+            <Route path='/vendor/orders/:order_oid/:order_item_id/' element={<PrivateRoute><Tracking /></PrivateRoute>}/>
             <Route path='/vendor/earning/' element= {<PrivateRoute><Earning /></PrivateRoute>}/>
             <Route path='/vendor/reviews/' element= {<PrivateRoute><Reviews /></PrivateRoute>}/>
             <Route path='/vendor/reviews/:review_id/' element= {<PrivateRoute><ReviewDetail /></PrivateRoute>}/>

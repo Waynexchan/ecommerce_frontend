@@ -109,7 +109,7 @@ function ProductDetail() {
         try {
             const formdata = new FormData();
             formdata.append("product_id", product.id);
-            formdata.append("user_id", userData?.user_id);
+            formdata.append('user_id', userData?.user_id || "0");  // Set default value if user is not logged in
             formdata.append("qty", qtyValue);
             formdata.append("price", product.price);
             formdata.append("shipping_amount", product.shipping_amount);
