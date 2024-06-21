@@ -3,11 +3,11 @@ import { PayPalButtons, PayPalScriptProvider } from '@paypal/react-paypal-js';
 import apiInstance from '../../utils/axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { SERVER_URL, PAYPAL_CLEINT_ID } from '../../utils/constants';
+import { SERVER_URL, PAYPAL_CLIENT_ID } from '../../utils/constants';
 
 
  const initialOptions = {
-    clientId: PAYPAL_CLEINT_ID,
+    clientId: PAYPAL_CLIENT_ID,
     currency: "USD",
     intent: "capture",
 };
@@ -228,32 +228,34 @@ function Checkout() {
                                         </form>
                                     )}
                                         
-                                        <PayPalScriptProvider options={initialOptions}>
-                                            <PayPalButtons
-                                                createOrder={(data, actions) => {
+                                    <PayPalScriptProvider options={initialOptions}>
+                                        <PayPalButtons
+                                            createOrder={(data, actions) => {
                                                    
-                                                    const totalAmount = order.total;
+                                                const totalAmount = order.total;
                                                     
-                                                    return actions.order.create({
-                                                        purchase_units: [
-                                                            {
-                                                                amount: {
-                                                                    currency_code: "USD",
-                                                                    value: totalAmount 
-                                                                }
+                                                return actions.order.create({
+                                                    purchase_units: [
+                                                        {
+                                                            amount: {
+                                                                currency_code: "USD",
+                                                                value: totalAmount 
                                                             }
-                                                        ]
-                                                    });
-                                                }}
-                                                onApprove={(data, actions) => {
-                                                    return actions.order.capture().then((details) => {
-                                                        const paypal_order_id = data.orderID;
-
-                                                        if (details.status === "COMPLETED") {
-                                                            navigate(`/payment-success/${order.oid}/?paypal_order_id=${paypal_order_id}`);
                                                         }
-                                                    });
-                                                }}
+                                                    ]
+                                                });
+                                            }}
+                                            onApprove={(data, actions) => {
+                                                return actions.order.capture().then((details) => {
+                                                    const paypal_order_id = data.orderID;
+                                                    const status = details.status;
+
+                                                    console.log(status);
+                                                    if (status === "COMPLETED") {
+                                                        navigate(`/payment-success/${order.oid}/?paypal_order_id=${paypal_order_id}`);
+                                                    }
+                                                });
+                                            }}
                                             />
                                         </PayPalScriptProvider>
 
