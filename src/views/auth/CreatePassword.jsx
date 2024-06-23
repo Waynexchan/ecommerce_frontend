@@ -5,8 +5,8 @@ import apiInstance from '../../utils/axios'
 function CreatePassword() {
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
-    const navigate = useNavigate() 
-    const [searchParams] = useSearchParams() 
+    const navigate = useNavigate()
+    const [searchParams] = useSearchParams()
     const otp = searchParams.get("otp")
     const uidb64 = searchParams.get("uidb64")
     const [isLoading, setIsLoading] = useState(false)
@@ -15,23 +15,20 @@ function CreatePassword() {
         setIsLoading(true)
         e.preventDefault()
         if (password !== confirmPassword) {
-            alert("Password Does Not Match")
+            alert("Passwords do not match")
             setIsLoading(false)
         } else {
-            setIsLoading(true)
-            
-            const formdata = new FormData()
-            formdata.append('password', password)
-            formdata.append('uidb64', uidb64)
-            formdata.append('otp', otp)
+            const formData = {
+                password,
+                uidb64,
+                otp
+            }
 
             try {
-                await apiInstance.post(`user/password-change/`, formdata).then((res) => {
-                    console.log(res.data);
-                    alert("Password Changed Successfully")
-                    navigate("/login")
-                    setIsLoading(false)
-                })
+                await apiInstance.post(`user/password-change/`, formData)
+                alert("Password Changed Successfully")
+                navigate("/login")
+                setIsLoading(false)
             } catch (error) {
                 alert("An error occurred while trying to change the password")
                 setIsLoading(false)
