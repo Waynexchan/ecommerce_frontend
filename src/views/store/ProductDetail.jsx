@@ -53,18 +53,18 @@ function ProductDetail() {
                 setError('Failed to load product details');
             });
     }, [param.slug]);
-
+    
     const fetchReviewData = async () => {
         if (product.id) {
             try {
                 const res = await apiInstance.get(`reviews/${product.id}/`);
-                setReviews(res.data);
+                setReviews(Array.isArray(res.data) ? res.data : []);
             } catch (error) {
                 console.error("Error fetching review data:", error);
             }
         }
-    }
-
+    };
+    
     useEffect(() => {
         fetchReviewData();
     }, [product]);

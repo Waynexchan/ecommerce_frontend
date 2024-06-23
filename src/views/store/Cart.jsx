@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import apiInstance from '../../utils/axios';
 import UserData from '../plugin/UserData';
@@ -17,7 +17,7 @@ const Toast = swal.mixin({
 
 function Cart() {
     const [cart, setCart] = useState([]);
-    const [cartTotal, setCartTotal] = useState([]);
+    const [cartTotal, setCartTotal] = useState({});
     const [productQuantities, setProductQuantities] = useState({});
 
     const userData = UserData();
@@ -38,8 +38,12 @@ function Cart() {
     const fetchCartData = (cartId, userId) => {
         const url = userId ? `cart-list/${cartId}/${userId}` : `cart-list/${cartId}/`;
         apiInstance.get(url).then((res) => {
-            setCart(res.data);
-            setCartCount(res.data.length);
+            const data = Array.isArray(res.data.results) ? res.data.results : [];
+            setCart(data);
+            setCartCount(data.length);
+        }).catch(error => {
+            setCart([]);
+            console.error('Error fetching cart data:', error);
         });
     };
 
@@ -47,6 +51,9 @@ function Cart() {
         const url = userId ? `cart-detail/${cartId}/${userId}` : `cart-detail/${cartId}/`;
         apiInstance.get(url).then((res) => {
             setCartTotal(res.data);
+        }).catch(error => {
+            setCartTotal({});
+            console.error('Error fetching cart total:', error);
         });
     };
 
@@ -64,10 +71,12 @@ function Cart() {
 
     useEffect(() => {
         const initialQuantities = {};
-        cart.forEach((c) => {
-            initialQuantities[c.product?.id] = c.qty;
-        });
-        setProductQuantities(initialQuantities);
+        if (Array.isArray(cart)) {
+            cart.forEach((c) => {
+                initialQuantities[c.product?.id] = c.qty;
+            });
+            setProductQuantities(initialQuantities);
+        }
     }, [cart]);
 
     const handleQuantityChange = (event, product_id) => {

@@ -1,7 +1,7 @@
-import {useState, useEffect} from 'react'
-import apiInstance from '../../utils/axios'
-import UserData from '../plugin/UserData'
-import {useParams } from 'react-router-dom'
+import { useState, useEffect } from 'react';
+import apiInstance from '../../utils/axios';
+import UserData from '../plugin/UserData';
+import { useParams } from 'react-router-dom';
 
 function Invoice() {
     const [order, setOrder] = useState({});
@@ -12,10 +12,13 @@ function Invoice() {
 
     useEffect(() => {
         if (userData?.user_id) {
-            apiInstance.get(`customer/order/${userData.user_id}/${param.order_oid}/`).then((res) => {
-                setOrder(res.data);
-                setOrderItems(res.data.orderitem);
-            }).catch(err => console.error(err));
+            apiInstance.get(`customer/order/${userData.user_id}/${param.order_oid}/`)
+                .then((res) => {
+                    console.log(res.data); 
+                    setOrder(res.data);
+                    setOrderItems(res.data.orderitem);
+                })
+                .catch(err => console.error(err));
         }
     }, [userData?.user_id, param.order_oid]);
 
@@ -98,40 +101,38 @@ function Invoice() {
                             <table className="table table-bordered">
                                 <thead>
                                     <tr>
-                                        <th>Product</th>
-                                        <th>Price</th>
-                                        <th>Qty</th>
-                                        <th>Sub Total</th>
-                                        <th>Discount</th>
+                                        <th style={{color: 'black'}}>Product</th>
+                                        <th style={{color: 'black'}}>Price</th>
+                                        <th style={{color: 'black'}}>Qty</th>
+                                        <th style={{color: 'black'}}>Sub Total</th>
+                                        <th style={{color: 'black'}}>Discount</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {orderItems?.map((o, index) =>(
+                                    {orderItems?.map((o, index) => (
                                         <tr key={index}>
-                                        <td className="col-md-5">
-                                            {o.product?.title}
-                                        </td>
-                                        <td className="col-md-2">
-                                            ${o.price}
-                                        </td>
-                                        <td className="col-md-2">
-                                            {o.qty}
-                                        </td>
-                                        <td className="col-md-2">
-                                            ${o.sub_total}
-                                        </td>
-                                        <td className="col-md-2">
-                                            ${o.saved}
-                                        </td>
-                                    </tr>
+                                            <td className="col-md-5">
+                                                {o.product?.title}
+                                            </td>
+                                            <td className="col-md-2">
+                                                ${o?.price}
+                                            </td>
+                                            <td className="col-md-2">
+                                                {o?.qty}
+                                            </td>
+                                            <td className="col-md-2">
+                                                ${o?.sub_total}
+                                            </td>
+                                            <td className="col-md-2">
+                                                ${o?.saved}
+                                            </td>
+                                        </tr>
                                     ))}
-                                    
-
                                 </tbody>
                             </table>
                             <div className="row">
                                 <div className="col-xs-6 col-sm-6 col-md-6 col-lg-6 d-flex justify-content-start">
-
+                                    {/* 可以在這裡添加額外的內容 */}
                                 </div>
                                 <div className="col-xs-6 col-sm-6 col-md-6 col-lg-6 d-flex justify-content-end">
                                     <div className="receipt-right">
@@ -172,9 +173,8 @@ function Invoice() {
                 </div>
                 {/* Print Windows */}
             </>
-
         </div>
-    )
+    );
 }
 
-export default Invoice
+export default Invoice;

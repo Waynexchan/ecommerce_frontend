@@ -52,16 +52,29 @@ import Tracking from './views/vendor/Tracking';
 
 
 function App() {
-  const [cartCount, setCartCount] = useState();
-  const cart_id = CartID();
-  const userData = UserData();
+  const [cartCount, setCartCount] = useState(localStorage.getItem('cartCount') || 0);
+  const [userData, setUserData] = useState(JSON.parse(localStorage.getItem('userData')) || null);
 
   useEffect(() => {
-      const url = userData ? `cart-list/${cart_id}/${userData?.user_id}` : `cart-list/${cart_id}/`;
-      apiInstance.get(url).then((res) => {
-          setCartCount(res.data.length);
-      });
-  }, []);
+    const fetchUserData = async () => {
+      if (!userData) {
+        const response = await apiInstance.get('/user/data/');
+        setUserData(response.data);
+        localStorage.setItem('userData', JSON.stringify(response.data));
+      }
+    };
+
+    const fetchCartCount = async () => {
+      if (!cartCount) {
+        const response = await apiInstance.get(`/cart-list/${userData?.user_id}/`);
+        setCartCount(response.data.length);
+        localStorage.setItem('cartCount', response.data.length);
+      }
+    };
+
+    fetchUserData();
+    fetchCartCount();
+  }, [cartCount, userData]);
 
   return (
     <CartContext.Provider value={([cartCount, setCartCount])}>

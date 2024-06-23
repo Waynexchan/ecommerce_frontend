@@ -4,8 +4,6 @@ import UserData from '../plugin/UserData';
 import Sidebar from './Sidebar';
 import swal from 'sweetalert2'
 
-
-
 function Wishlist() {
     const [wishlist, setWishlist] = useState([])
 
@@ -13,7 +11,8 @@ function Wishlist() {
 
     const fetchWishlist = async () =>{
         await apiInstance.get(`customer/wishlist/${userData?.user_id}/`).then((res) =>{
-            setWishlist(res.data)
+            const wishlistData = res.data ? res.data : []
+            setWishlist(wishlistData)
         })
     }
 
@@ -47,8 +46,7 @@ function Wishlist() {
         <div className="container">
             <section className="">
                 <div className="row">
-                    {/* Sidebar Here */}
-                    < Sidebar/>
+                    <Sidebar/>
 
                     <div className="col-lg-9 mt-1">
                         <section className="">
@@ -59,7 +57,7 @@ function Wishlist() {
                                             <h3 className="mb-3">
                                                 <i className="fas fa-heart text-danger" /> Wishlist
                                             </h3>
-                                            {wishlist?.map((w,index) => (
+                                            {Array.isArray(wishlist) && wishlist?.map((w,index) => (
                                                 <div className="col-lg-4 col-md-12 mb-4" key={index}>
                                                 <div className="card">
                                                     <div
@@ -67,7 +65,7 @@ function Wishlist() {
                                                         data-mdb-ripple-color="light"
                                                     >
                                                         <img
-                                                            src={w.product?.image}
+                                                            src={w.product_image}
                                                             className="w-100"
                                                             style={{ width: "100px", height: "300px", objectFit: "cover" }}
                                                         />
@@ -93,17 +91,17 @@ function Wishlist() {
                                                     </div>
                                                     <div className="card-body">
                                                         <a href="" className="text-reset">
-                                                            <h6 className="card-title mb-3 ">{w.product?.category?.title}</h6>
+                                                            <h6 className="card-title mb-3 ">{w.product_category}</h6>
                                                         </a>
                                                         <a href="" className="text-reset">
-                                                            <p>{w.product?.title}</p>
+                                                            <p>{w.product_title}</p>
                                                         </a>
-                                                        <h6 className="mb-3">${w.product?.price}</h6>
+                                                        <h6 className="mb-3">${w.product_price}</h6>
 
                                                         <button 
                                                         type="button" 
                                                         className="btn btn-danger px-3 me-1 mb-1"
-                                                        onClick={() => addToWishlist(w.product.id, userData?.user_id)}
+                                                        onClick={() => addToWishlist(w.id, userData?.user_id)}
                                                         >
                                                             <i className="fas fa-heart" />
                                                         </button>
@@ -113,7 +111,6 @@ function Wishlist() {
                                             ))}
                                             
 
-                                            {/* Show This if there are no item in wishlist */}
                                             {wishlist.length < 1 && 
                                                 <h6 className='container p-4'>Your wishlist is Empty </h6>
                                             }

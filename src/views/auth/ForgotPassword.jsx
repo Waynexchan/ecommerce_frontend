@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import apiInstance from '../../utils/axios';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import {  Link } from 'react-router-dom';
 
 function ForgotPassword() {
     const [email, setEmail] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();

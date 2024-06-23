@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import apiInstance from '../../utils/axios';
 import UserData from '../plugin/UserData';
-import { Link, useNavigate } from 'react-router-dom';
-import moment from 'moment';
+import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 function AddProduct() {
@@ -103,13 +102,16 @@ function AddProduct() {
 
     useEffect(() => {
         apiInstance.get(`category/`).then((res) => {
-            setCategory(res.data);
+            const categoryData = res.data.results ? res.data.results : []
+            setCategory(categoryData);
         });
     }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        console.log("Submitting form...");
+        
         const formData = new FormData();
         Object.entries(product).forEach(([key, value]) => {
             if (key === 'image' && value) {
@@ -153,16 +155,17 @@ function AddProduct() {
                     'Content-Type': 'multipart/form-data',
                 },
             });
+            console.log("Product created successfully:", response.data);
+
             Swal.fire({
                 icon: 'success',
                 title: "Product created successfully ",
                 timer:1500
             })
 
-           
             navigate(`/vendor/products/`)
         } catch (error) {
-            console.error(error);
+            console.error("Error creating product:", error);
         }
     };
 
@@ -237,7 +240,7 @@ function AddProduct() {
                                                                 onChange={handleProductInputChange}
                                                             >
                                                                 <option value="">- Select -</option>
-                                                                {category.map((c, index) => (
+                                                                {Array.isArray(category) && category.map((c, index) => (
                                                                     <option key={index} value={c.id}>{c.title}</option>
                                                                 ))}
                                                             </select>
@@ -336,7 +339,7 @@ function AddProduct() {
                                                         </div>
                                                     ))}
 
-                                                    {gallery < 1 &&
+                                                    {gallery.length < 1 &&
                                                         <h4>No Images Selected</h4>
                                                     }
 
@@ -389,7 +392,7 @@ function AddProduct() {
                                                         </div>
                                                     ))}
 
-                                                    {specifications < 1 &&
+                                                    {specifications.length < 1 &&
                                                         <h4>No specifications selected</h4>
                                                     }
 
@@ -448,7 +451,7 @@ function AddProduct() {
                                                             </div>
                                                         </div>
                                                     ))}
-                                                    {sizes < 1 &&
+                                                    {sizes.length < 1 &&
                                                         <h4>No Size Added</h4>
                                                     }
                                                     <button type='button' onClick={() => handleAddMore(setSizes)} className="btn btn-primary mt-2">
@@ -502,7 +505,7 @@ function AddProduct() {
                                                         </div>
                                                     ))}
 
-                                                    {colors < 1 &&
+                                                    {colors.length < 1 &&
                                                         <h4>No color selected</h4>
                                                     }
 

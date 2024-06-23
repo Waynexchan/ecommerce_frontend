@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import apiInstance from '../../utils/axios';
 import UserData from '../plugin/UserData';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import {  useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 function UpdateProduct() {
@@ -104,7 +104,8 @@ function UpdateProduct() {
 
     useEffect(() => {
         apiInstance.get(`category/`).then((res) => {
-            setCategory(res.data);
+            const categoryData = res.data.results ? res.data.results : []
+            setCategory(categoryData);
         });
     }, []);
 
@@ -259,7 +260,7 @@ function UpdateProduct() {
                                                                 onChange={handleProductInputChange}
                                                             >
                                                                 <option value="">- Select -</option>
-                                                                {category.map((c, index) => (
+                                                                {Array.isArray(category) && category.map((c, index) => (
                                                                     <option key={index} value={c.id}>{c.title}</option>
                                                                 ))}
                                                             </select>

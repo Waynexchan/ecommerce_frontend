@@ -3,7 +3,6 @@ import apiInstance from '../../utils/axios';
 import UserData from '../plugin/UserData';
 import { Link } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import moment from 'moment';
 
 function Orders() {
     const [orders, setOrders] = useState([]);
@@ -13,8 +12,8 @@ function Orders() {
         if (userData?.user_id) {
             apiInstance.get(`customer/orders/${userData.user_id}/`)
                 .then((res) => {
-                    setOrders(res.data);
-                    console.log(res.data);
+                    setOrders(res.data.results); // Access the results array
+                    console.log(res.data.results);
                 })
                 .catch(err => console.error(err));
         }

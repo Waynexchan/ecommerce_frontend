@@ -3,7 +3,7 @@ import Sidebar from './Sidebar';
 import useAxios from '../../utils/useAxio';
 import UserData from '../plugin/UserData';
 import { Link, useParams } from 'react-router-dom';
-import moment from 'moment';
+
 
 function OrderDetail() {
     const axiosInstance = useAxios();

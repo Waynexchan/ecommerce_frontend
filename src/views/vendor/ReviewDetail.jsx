@@ -2,8 +2,8 @@ import {useState, useEffect} from 'react'
 import Sidebar from './Sidebar'
 import apiInstance from '../../utils/axios'
 import UserData from '../plugin/UserData';
-import { Link , useParams} from 'react-router-dom';
-import moment from 'moment';
+import {  useParams} from 'react-router-dom';
+
 
 function ReviewDetail() {
 

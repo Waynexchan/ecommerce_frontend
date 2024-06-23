@@ -2,10 +2,7 @@ import {useState, useEffect} from 'react'
 import Sidebar from './Sidebar'
 import apiInstance from '../../utils/axios'
 import UserData from '../plugin/UserData';
-import { Link } from 'react-router-dom';
-import moment from 'moment';
 import { Line, Bar} from 'react-chartjs-2'
-import { Chart } from 'chart.js/auto';
 
 function Earning() {
     const [earningStats, setEarningStats] =useState({})

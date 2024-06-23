@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import  { useEffect, useState } from 'react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import apiInstance from '../../utils/axios';
 
 function PaymentSuccess() {
@@ -7,10 +7,15 @@ function PaymentSuccess() {
     const [orderResponse, setOrderResponse] = useState({});
     const [order, setOrder] = useState({});
     const param = useParams();
+    const navigate = useNavigate();
 
     const urlParams = new URLSearchParams(window.location.search);
     const sessionId = urlParams.get('session_id');
     const paypalOrderId = urlParams.get('paypal_order_id');
+    
+    const handleViewOrder = () => {
+        navigate(`/customer/orders/${order.oid}/`);
+    };
 
     useEffect(() => {
         const fetchOrderDetails = async () => {
@@ -85,7 +90,7 @@ function PaymentSuccess() {
                                                                             <div className="text-center">
                                                                                 <h1>Already Paid!</h1>
                                                                                 <p>You have already paid for this order, thank you.</p>
-                                                                                <button className="btn btn-success mt-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                                                                <button onClick={handleViewOrder} className="btn btn-success mt-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
                                                                                     View Order <i className="fas fa-eye" />
                                                                                 </button>
                                                                                 <Link to={`/customer/invoice/${order.oid}/`} className="btn btn-primary mt-3 ms-2">

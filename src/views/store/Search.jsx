@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-
 import apiInstance from '../../utils/axios';
 import GetCurrentAddress from '../plugin/UserCountry';
 import UserData from '../plugin/UserData';
@@ -34,37 +33,38 @@ function Search() {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("query");
 
-  const handleColorButtonClick = (event, product_id, colorName) => {
+  const handleColorButtonClick = useCallback((event, product_id, colorName) => {
     setColorValue(colorName);
     setSelectedProduct(product_id);
     setSelectedColors((prevSelectedColors) => ({
-      ...prevSelectedColors, //not to overwrite the previous clicked color
+      ...prevSelectedColors,
       [product_id]: colorName
     }));
-  };
+  }, []);
 
-  const handleSizeButtonClick = (event, product_id, sizeName) => {
+  const handleSizeButtonClick = useCallback((event, product_id, sizeName) => {
     setSizeValue(sizeName);
     setSelectedProduct(product_id);
     setSelectedSize((prevSelectedSize) => ({
       ...prevSelectedSize,
       [product_id]: sizeName
     }));
-  };
+  }, []);
 
-  const handleQtyChange = (event, product_id) => {
-    setQtyValue(event.target.value);
+  const handleQtyChange = useCallback((event, product_id) => {
+    const value = Math.max(1, event.target.value); // Ensure quantity is at least 1
+    setQtyValue(value);
     setSelectedProduct(product_id);
-  };
+  }, []);
 
   useEffect(() => {
-    apiInstance.get(`search/?query=${query}`) //call product api
+    apiInstance.get(`search/?query=${query}`)
       .then((response) => {
         setProducts(response.data);
       });
   }, [query]);
 
-  const handleAddToCart = async (product_id, price, shipping_amount) => {
+  const handleAddToCart = useCallback(async (product_id, price, shipping_amount) => {
     const formdata = new FormData();
 
     formdata.append("product_id", product_id);
@@ -84,7 +84,7 @@ function Search() {
       icon: "success",
       title: response.data.message
     });
-  };
+  }, [userData?.user_id, qtyValue, sizeValue, colorValue, currentAddress.country, cart_id]);
 
   return (
     <div>
@@ -101,9 +101,9 @@ function Search() {
                     >
                       <Link to={`/detail/${p.slug}/`}>
                         <img
-                          src={p.image} //use image from api
+                          src={p.image}
                           className="w-100"
-                          style={{ width: "100%", height: "250px", objectFit: "cover" }} // fix image size
+                          style={{ width: "100%", height: "250px", objectFit: "cover" }}
                           alt={p.title}
                         />
                       </Link>
@@ -141,7 +141,12 @@ function Search() {
                             </li>
                             <div className="p-1 mt-0 pt-0 d-flex flex-wrap">
                               <li>
-                                <input className='form-control' onChange={(e) => handleQtyChange(e, p.id)} type='number' />
+                                <input
+                                  className='form-control'
+                                  onChange={(e) => handleQtyChange(e, p.id)}
+                                  type='number'
+                                  min='1'
+                                />
                               </li>
                             </div>
                           </div>
@@ -223,7 +228,6 @@ function Search() {
               </div>
             </div>
           </section>
-          {/*Section: Wishlist*/}
         </div>
       </main>
     </div>

@@ -6,15 +6,18 @@ function UserData() {
     const refresh_token = Cookie.get('refresh_token');
 
     if (access_token && refresh_token) {
-        const token = refresh_token;
-        const decoded = jwtDecode(token);  // to return user data
-        return {
-            user_id: decoded.user_id,
-            username: decoded.username,
-            vendor_id: decoded.vendor_id,
-        };
+        try {
+            const decoded = jwtDecode(refresh_token);  // to return user data
+            return {
+                user_id: decoded.user_id,
+                username: decoded.username,
+                vendor_id: decoded.vendor_id,
+            };
+        } catch (error) {
+            console.error('Error decoding token:', error);
+            return null;
+        }
     } else {
-        console.log('User Token Does Not Exist');
         return null;
     }
 }

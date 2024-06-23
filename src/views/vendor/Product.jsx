@@ -14,19 +14,26 @@ const Toast = Swal.mixin({
   })
 
 function Product() {
-    const [products, setProducts] =useState([])
+    const [products, setProducts] = useState([])
     const userData = UserData()
 
     useEffect(() => {
-        apiInstance.get(`vendor/products/${UserData()?.vendor_id}/`).then((res) =>{
-            setProducts(res.data)
-        })
-    },[])
+        if (userData?.vendor_id) {
+            apiInstance.get(`vendor/products/${userData.vendor_id}/`).then((res) => {
+                const productsData = res.data.results ? res.data.results : [];
+                setProducts(productsData);
+            }).catch(error => {
+                console.error("Error fetching products:", error);
+                setProducts([]);
+            });
+        }
+    }, [userData?.vendor_id]);
 
     const handleDeleteProduct = async (productPid) => {
         await apiInstance.delete(`vendor-delete-product/${UserData()?.vendor_id}/${productPid}/`)
         await apiInstance.get(`vendor/products/${UserData()?.vendor_id}/`).then((res) =>{
-            setProducts(res.data)
+            const productsData = res.data.results ? res.data.results : [];
+            setProducts(productsData);
         })
         Toast.fire({
             icon: 'success',
@@ -37,8 +44,8 @@ function Product() {
     const handleFilterProduct = async (param) => {
         try {
             const response = await apiInstance.get(`vendor-product-filter/${userData?.vendor_id}?filter=${param}`)
-            setProducts(response.data);
-
+            const productsData = response.data.results ? response.data.results : [];
+            setProducts(productsData);
         } catch (error) {
             console.log(error);
         }
@@ -90,7 +97,7 @@ function Product() {
                                 Status: Disabled
                             </button>
                         </li>
-
+    
                         <hr />
                         <li>
                             <button className="dropdown-item" onClick={() => handleFilterProduct('latest')}>
@@ -117,8 +124,8 @@ function Product() {
                     </tr>
                     </thead>
                     <tbody>
-                    
-                        {products?.map((p, index) => (
+                        
+                        {Array.isArray(products) && products.map((p, index) => (
                             <tr key={index}>
                                 <th scope="row"><img src={p.image} style={{width: "100px", height: "70px", objectFit:"cover", borderRadius:"10px"}} alt=''/></th>
                                 <td>{p.title}</td>
@@ -139,14 +146,13 @@ function Product() {
                                 </td>
                             </tr>
                         ))}
-                    
+                        
                     </tbody>
                 </table>
                 </div>
             </div>
             </div>
         </div>
-    
     )
 }
 
