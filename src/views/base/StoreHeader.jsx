@@ -8,10 +8,10 @@ function StoreHeader() {
     const [isLoggedIn, user, logout] = useAuthStore((state) => [
         state.isLoggedIn,
         state.user,
-        state.logout // Add logout function to destructuring
+        state.logout
     ]);
 
-    const cartCount = useContext(CartContext);
+    const { cartCount } = useContext(CartContext);
     const [search, setSearch] = useState("");
     const navigate = useNavigate();
 
@@ -19,7 +19,7 @@ function StoreHeader() {
         debounce((search) => {
             navigate(`/search?query=${search}`);
         }, 500),
-        [navigate] // Add navigate as a dependency
+        [navigate]
     );
 
     const handleSearchChange = (event) => {

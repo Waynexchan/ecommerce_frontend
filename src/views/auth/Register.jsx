@@ -1,14 +1,17 @@
-import {useState, useEffect} from 'react'
-import { register } from '../../utils/auth'
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuthStore } from '../../store/auths'
+import { useState, useEffect } from 'react';
+import { register } from '../../utils/auth';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../store/auths';
+import Swal from 'sweetalert2';
 
 function Register() {
-    const [fullname, setFullname] = useState('');
-    const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
-    const [password, setPassword] = useState('');
-    const [password2, setPassword2] = useState('');
+    const [form, setForm] = useState({
+        fullname: '',
+        email: '',
+        phone: '',
+        password: '',
+        password2: '',
+    });
     const [isLoading, setIsLoading] = useState(false);
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
     const navigate = useNavigate();
@@ -17,35 +20,54 @@ function Register() {
         if (isLoggedIn()) {
             navigate('/');
         }
-    }, []);
+    }, [isLoggedIn, navigate]);
 
     const resetForm = () => {
-        setFullname('');
-        setEmail('');
-        setPhone('');
-        setPassword('');
-        setPassword2('');
+        setForm({
+            fullname: '',
+            email: '',
+            phone: '',
+            password: '',
+            password2: '',
+        });
+    };
+
+    const handleChange = (e) => {
+        setForm({
+            ...form,
+            [e.target.name]: e.target.value,
+        });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        // Set isLoading to true when the form is submitted
         setIsLoading(true);
 
         try {
-            const { error } = await register(fullname, email, phone, password, password2);
+            const { error } = await register(form.fullname, form.email, form.phone, form.password, form.password2);
             if (error) {
-                alert(JSON.stringify(error));
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error,
+                });
             } else {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Account created successfully',
+                });
                 navigate('/');
                 resetForm();
             }
         } catch (err) {
             console.error(err);
-            alert("An unexpected error occurred.");
+            Swal.fire({
+                icon: 'error',
+                title: 'Unexpected Error',
+                text: 'An unexpected error occurred.',
+            });
         } finally {
-            // Reset isLoading to false when the operation is complete
             setIsLoading(false);
         }
     };
@@ -54,7 +76,6 @@ function Register() {
         <>
             <main className="" style={{ marginBottom: 100, marginTop: 50 }}>
                 <div className="container">
-                    {/* Section: Login form */}
                     <section className="">
                         <div className="row d-flex justify-content-center">
                             <div className="col-xl-5 col-md-8">
@@ -62,85 +83,88 @@ function Register() {
                                     <div className="card-body p-4">
                                         <h3 className="text-center">Register Account</h3>
                                         <br />
-
                                         <div className="tab-content">
                                             <div className="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="tab-login">
                                                 <form onSubmit={handleSubmit}>
                                                     <div className="form-outline mb-4">
-                                                        <label className="form-label" htmlFor="Full Name">
+                                                        <label className="form-label" htmlFor="fullname">
                                                             Full Name
                                                         </label>
                                                         <input
                                                             type="text"
-                                                            id="username"
+                                                            id="fullname"
+                                                            name="fullname"
+                                                            value={form.fullname}
                                                             placeholder="Full Name"
                                                             required
                                                             className="form-control"
-                                                            onChange={(e) => setFullname(e.target.value)}
-
+                                                            onChange={handleChange}
                                                         />
                                                     </div>
                                                     <div className="form-outline mb-4">
-                                                        <label className="form-label" htmlFor="loginName">
+                                                        <label className="form-label" htmlFor="email">
                                                             Email
                                                         </label>
                                                         <input
                                                             type="email"
                                                             id="email"
+                                                            name="email"
+                                                            value={form.email}
                                                             placeholder="Email Address"
                                                             required
                                                             className="form-control"
-                                                            onChange={(e) => setEmail(e.target.value)}
+                                                            onChange={handleChange}
                                                         />
                                                     </div>
-
                                                     <div className="form-outline mb-4">
-                                                        <label className="form-label" htmlFor="loginName">
+                                                        <label className="form-label" htmlFor="phone">
                                                             Mobile Number
                                                         </label>
                                                         <input
                                                             type="text"
                                                             id="phone"
+                                                            name="phone"
+                                                            value={form.phone}
                                                             placeholder="Mobile Number"
                                                             required
                                                             className="form-control"
-                                                            onChange={(e) => setPhone(e.target.value)}
+                                                            onChange={handleChange}
                                                         />
                                                     </div>
                                                     <div className="form-outline mb-4">
-                                                        <label className="form-label" htmlFor="loginPassword">
+                                                        <label className="form-label" htmlFor="password">
                                                             Password
                                                         </label>
                                                         <input
                                                             type="password"
                                                             id="password"
+                                                            name="password"
+                                                            value={form.password}
                                                             placeholder="Password"
+                                                            required
                                                             className="form-control"
-                                                            onChange={(e) => setPassword(e.target.value)}
+                                                            onChange={handleChange}
                                                         />
                                                     </div>
-                                                    {/* Password input */}
                                                     <div className="form-outline mb-4">
-                                                        <label className="form-label" htmlFor="loginPassword">
+                                                        <label className="form-label" htmlFor="password2">
                                                             Confirm Password
                                                         </label>
                                                         <input
                                                             type="password"
-                                                            id="confirm-password"
+                                                            id="password2"
+                                                            name="password2"
+                                                            value={form.password2}
                                                             placeholder="Confirm Password"
                                                             required
                                                             className="form-control"
-                                                            onChange={(e) => setPassword2(e.target.value)}
+                                                            onChange={handleChange}
                                                         />
                                                     </div>
-                                                    {/* Password Check */}
-                                                    {/* <p className='fw-bold text-danger'>
-                                                                {password2 !== password ? 'Passwords do not match' : ''}
-                                                            </p> */}
                                                     <button className='btn btn-primary w-100' type="submit" disabled={isLoading}>
                                                         {isLoading ? (
                                                             <>
-                                                                <span className="mr-2 ">Processing...</span>
+                                                                <span className="mr-2">Processing...</span>
                                                                 <i className="fas fa-spinner fa-spin" />
                                                             </>
                                                         ) : (
@@ -150,8 +174,6 @@ function Register() {
                                                             </>
                                                         )}
                                                     </button>
-                                                    
-
                                                     <div className="text-center">
                                                         <p className='mt-4'>
                                                             Already have an account? <Link to="/login/">Login</Link>
@@ -159,7 +181,6 @@ function Register() {
                                                     </div>
                                                 </form>
                                             </div>
-
                                         </div>
                                     </div>
                                 </div>
@@ -169,7 +190,7 @@ function Register() {
                 </div>
             </main>
         </>
-    )
+    );
 }
 
-export default Register
+export default Register;

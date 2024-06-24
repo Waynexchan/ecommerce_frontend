@@ -2,13 +2,10 @@ import { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import apiInstance from '../../utils/axios';
 import UserData from '../plugin/UserData';
-import {  useParams } from 'react-router-dom';
-
+import { useParams } from 'react-router-dom';
 
 function OrderDetail() {
     const [order, setOrder] = useState({});
-    const [orderItems, setOrderItems] = useState([]);
-
     const userData = UserData();
     const param = useParams();
 
@@ -16,7 +13,6 @@ function OrderDetail() {
         if (userData?.user_id) {
             apiInstance.get(`customer/order/${userData.user_id}/${param.order_oid}/`).then((res) => {
                 setOrder(res.data);
-                setOrderItems(res.data.orderitem);
             }).catch(err => console.error(err));
         }
     }, [userData?.user_id, param.order_oid]);
@@ -119,51 +115,6 @@ function OrderDetail() {
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </section>
-                                    <section className="">
-                                        <div className="row rounded shadow p-3">
-                                            <div className="col-lg-12 mb-4 mb-lg-0">
-                                                <table className="table align-middle mb-0 bg-white">
-                                                    <thead className="bg-light">
-                                                        <tr>
-                                                            <th>Product</th>
-                                                            <th>Price</th>
-                                                            <th>Qty</th>
-                                                            <th>Total</th>
-                                                            <th>Tracking ID</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {orderItems?.map((o, index) => (
-                                                            <tr key={index}>
-                                                                <td>
-                                                                    <div className="d-flex align-items-center">
-                                                                        <img
-                                                                            src={o.product?.image}
-                                                                            style={{ width: 80, height: 80, objectFit: "cover", borderRadius: "10px" }}
-                                                                            alt=""
-                                                                        />
-                                                                        <p className="text-muted mb-0">{o.product?.title}</p>
-                                                                    </div>
-                                                                </td>
-                                                                <td>
-                                                                    <p className="fw-normal mb-1">${o.price}</p>
-                                                                </td>
-                                                                <td>
-                                                                    <p className="fw-normal mb-1">{o.qty}</p>
-                                                                </td>
-                                                                <td>
-                                                                    <span className="fw-normal mb-1">${o.sub_total}</span>
-                                                                </td>
-                                                                <td>
-                                                                    <span className="fw-normal mb-1">{o.tracking_id}</span>
-                                                                </td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
                                             </div>
                                         </div>
                                     </section>

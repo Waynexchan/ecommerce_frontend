@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import apiInstance from '../../utils/axios';
 import GetCurrentAddress from '../plugin/UserCountry';
 import UserData from '../plugin/UserData';
 import CartID from '../plugin/CartID';
 import swal from 'sweetalert2';
+import { CartContext } from '../plugin/Context';
 
 const Toast = swal.mixin({
   toast: true,
@@ -15,9 +16,10 @@ const Toast = swal.mixin({
 });
 
 function Search() {
-
   const [products, setProducts] = useState([]);
-  const [category, setCategory] = useState([]);
+
+  const [loadingProducts, setLoadingProducts] = useState(true);
+
 
   const [colorValue, setColorValue] = useState("No Color");
   const [sizeValue, setSizeValue] = useState("No Size");
@@ -32,6 +34,7 @@ function Search() {
   const cart_id = CartID();
   const [searchParams] = useSearchParams();
   const query = searchParams.get("query");
+  const [cartCount, setCartCount] = useContext(CartContext);
 
   const handleColorButtonClick = useCallback((event, product_id, colorName) => {
     setColorValue(colorName);
@@ -60,7 +63,12 @@ function Search() {
   useEffect(() => {
     apiInstance.get(`search/?query=${query}`)
       .then((response) => {
-        setProducts(response.data);
+        const searchData = response.data.results ? response.data.results : []
+        setProducts(searchData);
+        setLoadingProducts(false);
+      }).catch(error => {
+        console.error('Error fetching search results:', error);
+        setLoadingProducts(false);
       });
   }, [query]);
 
@@ -68,7 +76,7 @@ function Search() {
     const formdata = new FormData();
 
     formdata.append("product_id", product_id);
-    formdata.append("user_id", userData?.user_id);
+    formdata.append("user_id", userData?.user_id || "0");
     formdata.append("qty", qtyValue);
     formdata.append("price", price);
     formdata.append("shipping_amount", shipping_amount);
@@ -77,14 +85,54 @@ function Search() {
     formdata.append("color", colorValue);
     formdata.append("cart_id", cart_id);
 
-    const response = await apiInstance.post(`cart-view/`, formdata);
-    console.log(response.data);
+    try {
+      const response = await apiInstance.post(`cart-view/`, formdata);
+      console.log(response.data);
 
-    Toast.fire({
-      icon: "success",
-      title: response.data.message
-    });
+      const url = userData ? `cart-list/${cart_id}/${userData?.user_id}` : `cart-list/${cart_id}/`;
+      const cartResponse = await apiInstance.get(url);
+      setCartCount(cartResponse.data.length);
+
+      Toast.fire({
+        icon: "success",
+        title: response.data.message
+      });
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    }
   }, [userData?.user_id, qtyValue, sizeValue, colorValue, currentAddress.country, cart_id]);
+
+  const addToWishlist = async (productId, userId) => {
+    if (!userId || userId === "undefined") {
+      swal.fire({
+        icon: 'warning',
+        title: 'Login Required',
+        text: 'Please log in to add items to your wishlist',
+      });
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('product_id', productId);
+      formData.append('user_id', userId);
+
+      const response = await apiInstance.post(`customer/wishlist/${userId}/`, formData);
+      console.log(response.data);
+
+      swal.fire({
+        icon: 'success',
+        title: response.data.message,
+      });
+    } catch (error) {
+      console.error('Error adding to wishlist:', error);
+      swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'There was an error adding the item to your wishlist',
+      });
+    }
+  };
 
   return (
     <div>
@@ -92,140 +140,138 @@ function Search() {
         <div className="container">
           <section className="text-center">
             <div className="row">
-              {products?.map((p, index) => (
-                <div className="col-lg-4 col-md-12 mb-4" key={index}>
-                  <div className="card">
-                    <div
-                      className="bg-image hover-zoom ripple"
-                      data-mdb-ripple-color="light"
-                    >
-                      <Link to={`/detail/${p.slug}/`}>
-                        <img
-                          src={p.image}
-                          className="w-100"
-                          style={{ width: "100%", height: "250px", objectFit: "cover" }}
-                          alt={p.title}
-                        />
-                      </Link>
-                    </div>
-                    <div className="card-body">
-                      <Link to={`/detail/${p.slug}/`} className="text-reset">
-                        <h5 className="card-title mb-3">{p.title}</h5>
-                      </Link>
-                      <a href="" className="text-reset">
-                        <p>{p.category?.title}</p>
-                      </a>
-                      <div className='d-flex justify-content-center'>
-                        <h6 className="mb-3">${p.price}</h6>
-                        <h6 className="mb-3 text-muted ms-2"><strike>${p.old_price}</strike></h6>
-                      </div>
-
-                      <div className="btn-group">
-                        <button
-                          className="btn btn-primary dropdown-toggle"
-                          type="button"
-                          id="dropdownMenuClickable"
-                          data-bs-toggle="dropdown"
-                          data-bs-auto-close="false"
-                          aria-expanded="false"
+              {loadingProducts ? (
+                <div>Loading products...</div>
+              ) : (
+                products.length > 0 ? (
+                  products.map((p, index) => (
+                    <div className="col-lg-4 col-md-12 mb-4" key={index}>
+                      <div className="card">
+                        <div
+                          className="bg-image hover-zoom ripple"
+                          data-mdb-ripple-color="light"
                         >
-                          Variation
-                        </button>
-                        <ul
-                          className="dropdown-menu"
-                          aria-labelledby="dropdownMenuClickable"
-                        >
-                          <div className="d-flex flex-column">
-                            <li className="p-1">
-                              <b>Quantity</b>
-                            </li>
-                            <div className="p-1 mt-0 pt-0 d-flex flex-wrap">
-                              <li>
-                                <input
-                                  className='form-control'
-                                  onChange={(e) => handleQtyChange(e, p.id)}
-                                  type='number'
-                                  min='1'
-                                />
-                              </li>
-                            </div>
+                          <Link to={`/detail/${p.slug}/`}>
+                            <img
+                              src={p.image}
+                              className="w-100"
+                              style={{ width: "100%", height: "250px", objectFit: "cover" }}
+                              alt={p.title}
+                            />
+                          </Link>
+                        </div>
+                        <div className="card-body">
+                          <Link to={`/detail/${p.slug}/`} className="text-reset">
+                            <h5 className="card-title mb-3">{p.title}</h5>
+                          </Link>
+                          <a href="#" className="text-reset">
+                            <p>{p.category?.title}</p>
+                          </a>
+                          <div className='d-flex justify-content-center'>
+                            <h6 className="mb-3">${p.price}</h6>
+                            <h6 className="mb-3 text-muted ms-2"><strike>${p.old_price}</strike></h6>
                           </div>
 
-                          {p.size?.length > 0 &&
-                            <div className="d-flex flex-column">
-                              <li className="p-1">
-                                <b>Size</b>: {selectedSize[p.id] || "No size"}
-                              </li>
-                              <div className="p-1 mt-0 pt-0 d-flex flex-wrap">
-                                {p.size?.map((size, index) => (
-                                  <li key={index}>
-                                    <button onClick={(e) => handleSizeButtonClick(e, p.id, size.name)} className="btn btn-secondary btn-sm me-2 mb-1">
-                                      {size.name}
-                                    </button>
-                                  </li>
-                                ))}
-                              </div>
-                            </div>
-                          }
-
-                          {p.color.length > 0 &&
-                            <div className="d-flex flex-column mt-3">
-                              <li className="p-1">
-                                <b>Color</b>: {selectedColors[p.id] || "No Color"}
-                              </li>
-                              <div className="p-1 mt-0 pt-0 d-flex flex-wrap">
-                                {p.color?.map((color, index) => (
-                                  <li key={index}>
-                                    <button
-                                      className="btn btn-sm me-2 mb-1 p-3"
-                                      style={{ backgroundColor: `${color.color_code}` }}
-                                      onClick={(e) => handleColorButtonClick(e, p.id, color.name)}
+                          <div className="btn-group">
+                            <button
+                              className="btn btn-primary dropdown-toggle"
+                              type="button"
+                              id="dropdownMenuClickable"
+                              data-bs-toggle="dropdown"
+                              data-bs-auto-close="false"
+                              aria-expanded="false"
+                            >
+                              Variation
+                            </button>
+                            <ul
+                              className="dropdown-menu"
+                              aria-labelledby="dropdownMenuClickable"
+                            >
+                              <div className="d-flex flex-column">
+                                <li className="p-1">
+                                  <b>Quantity</b>
+                                </li>
+                                <div className="p-1 mt-0 pt-0 d-flex flex-wrap">
+                                  <li>
+                                    <input
+                                      className='form-control'
+                                      onChange={(e) => handleQtyChange(e, p.id)}
+                                      type='number'
+                                      min='1'
                                     />
                                   </li>
-                                ))}
+                                </div>
                               </div>
-                            </div>
-                          }
 
-                          <div className="d-flex mt-3 p-1">
+                              {p.size?.length > 0 &&
+                                <div className="d-flex flex-column">
+                                  <li className="p-1">
+                                    <b>Size</b>: {selectedSize[p.id] || "No size"}
+                                  </li>
+                                  <div className="p-1 mt-0 pt-0 d-flex flex-wrap">
+                                    {p.size?.map((size, index) => (
+                                      <li key={index}>
+                                        <button onClick={(e) => handleSizeButtonClick(e, p.id, size.name)} className="btn btn-secondary btn-sm me-2 mb-1">
+                                          {size.name}
+                                        </button>
+                                      </li>
+                                    ))}
+                                  </div>
+                                </div>
+                              }
+
+                              {p.color?.length > 0 &&
+                                <div className="d-flex flex-column mt-3">
+                                  <li className="p-1">
+                                    <b>Color</b>: {selectedColors[p.id] || "No Color"}
+                                  </li>
+                                  <div className="p-1 mt-0 pt-0 d-flex flex-wrap">
+                                    {p.color?.map((color, index) => (
+                                      <li key={index}>
+                                        <button
+                                          className="btn btn-sm me-2 mb-1 p-3"
+                                          style={{ backgroundColor: `${color.color_code}` }}
+                                          onClick={(e) => handleColorButtonClick(e, p.id, color.name)}
+                                        />
+                                      </li>
+                                    ))}
+                                  </div>
+                                </div>
+                              }
+
+                              <div className="d-flex mt-3 p-1">
+                                <button
+                                  type="button"
+                                  className="btn btn-primary me-1 mb-1"
+                                  onClick={() => handleAddToCart(p.id, p.price, p.shipping_amount)}
+                                >
+                                  <i className="fas fa-shopping-cart" />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn btn-danger px-3 me-1 mb-1 ms-2"
+                                  onClick={() => addToWishlist(p.id, userData?.user_id)}
+                                >
+                                  <i className="fas fa-heart" />
+                                </button>
+                              </div>
+                            </ul>
                             <button
                               type="button"
-                              className="btn btn-primary me-1 mb-1"
-                              onClick={() => handleAddToCart(p.id, p.price, p.shipping_amount)}
-                            >
-                              <i className="fas fa-shopping-cart" />
-                            </button>
-                            <button
-                              type="button"
-                              className="btn btn-danger px-3 me-1 mb-1 ms-2"
+                              className="btn btn-danger px-3 me-1 ms-2"
+                              onClick={() => addToWishlist(p.id, userData?.user_id)}
                             >
                               <i className="fas fa-heart" />
                             </button>
                           </div>
-                        </ul>
-                        <button
-                          type="button"
-                          className="btn btn-danger px-3 me-1 ms-2"
-                        >
-                          <i className="fas fa-heart" />
-                        </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              ))}
-
-              <div className='row'>
-                {category.map((c, index) => (
-                  <div className="col-lg-2" key={index}>
-                    <img src={c.image} style={{ width: "100px", height: "100px", borderRadius: "50%", objectFit: "cover" }} alt={c.title} />
-                    <h6>{c.title}</h6>
-                  </div>
-                ))}
-                {products.length < 1 &&
+                  ))
+                ) : (
                   <h4>No Results For "{query}"</h4>
-                }
-              </div>
+                )
+              )}
             </div>
           </section>
         </div>

@@ -16,6 +16,7 @@ import StoreHeader from './views/base/StoreHeader'
 import StoreFooter from './views/base/StoreFooter'
 import MainWrapper from './layout/MainWrapper'
 import PaymentSuccess from './views/store/PaymentSuccess'
+import { CartProvider } from './views/plugin/Context';
 import { CartContext } from './views/plugin/Context'
 import { useEffect, useState } from 'react'
 import CartID from './views/plugin/CartID'
@@ -52,29 +53,16 @@ import Tracking from './views/vendor/Tracking';
 
 
 function App() {
-  const [cartCount, setCartCount] = useState(localStorage.getItem('cartCount') || 0);
-  const [userData, setUserData] = useState(JSON.parse(localStorage.getItem('userData')) || null);
+  const [cartCount, setCartCount] = useState();
+  const cart_id = CartID();
+  const userData = UserData();
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      if (!userData) {
-        const response = await apiInstance.get('/user/data/');
-        setUserData(response.data);
-        localStorage.setItem('userData', JSON.stringify(response.data));
-      }
-    };
-
-    const fetchCartCount = async () => {
-      if (!cartCount) {
-        const response = await apiInstance.get(`/cart-list/${userData?.user_id}/`);
-        setCartCount(response.data.length);
-        localStorage.setItem('cartCount', response.data.length);
-      }
-    };
-
-    fetchUserData();
-    fetchCartCount();
-  }, [cartCount, userData]);
+      const url = userData ? `cart-list/${cart_id}/${userData?.user_id}` : `cart-list/${cart_id}/`;
+      apiInstance.get(url).then((res) => {
+          setCartCount(res.data.length);
+      });
+  }, []);
 
   return (
     <CartContext.Provider value={([cartCount, setCartCount])}>
@@ -112,7 +100,7 @@ function App() {
             <Route path='/vendor/products/' element= {<PrivateRoute><Product /></PrivateRoute>}/>
             <Route path='/vendor/orders/' element= {<PrivateRoute><VendorOrders /></PrivateRoute>}/>
             <Route path='/vendor/orders/:order_oid/' element= {<PrivateRoute><VendorOrderDetail /></PrivateRoute>}/>
-            <Route path='/vendor/orders/:order_oid/:order_item_id/' element={<PrivateRoute><Tracking /></PrivateRoute>}/>
+            <Route path="/vendor/orders/:order_oid/item/:order_item_id/tracking/" element= {<PrivateRoute><Tracking /></PrivateRoute>}/>
             <Route path='/vendor/earning/' element= {<PrivateRoute><Earning /></PrivateRoute>}/>
             <Route path='/vendor/reviews/' element= {<PrivateRoute><Reviews /></PrivateRoute>}/>
             <Route path='/vendor/reviews/:review_id/' element= {<PrivateRoute><ReviewDetail /></PrivateRoute>}/>

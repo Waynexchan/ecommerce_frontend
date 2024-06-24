@@ -13,7 +13,7 @@ function Orders() {
             apiInstance.get(`customer/orders/${userData.user_id}/`)
                 .then((res) => {
                     setOrders(res.data.results); // Access the results array
-                    console.log(res.data.results);
+                    
                 })
                 .catch(err => console.error(err));
         }

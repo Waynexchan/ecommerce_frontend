@@ -10,7 +10,7 @@ function Tracking() {
     useEffect(() => {
         // Fetch existing tracking info if any
         apiInstance.get(`vendor/orders/${order_oid}/item/${order_item_id}/tracking/`).then(res => {
-            const orderItem = res.data[0]; // Assuming the response is a list with one item
+            const orderItem = res.data.results[0]; // Ensure this correctly references the first result
             setTrackingInfo(orderItem.tracking_id || '');
         });
     }, [order_oid, order_item_id]);

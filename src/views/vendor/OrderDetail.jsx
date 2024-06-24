@@ -1,39 +1,43 @@
 import { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
-import useAxios from '../../utils/useAxio';
+import apiInstance from '../../utils/axios';
 import UserData from '../plugin/UserData';
 import { Link, useParams } from 'react-router-dom';
 
-
 function OrderDetail() {
-    const axiosInstance = useAxios();
     const [order, setOrder] = useState({});
     const [orderItems, setOrderItems] = useState([]);
 
     const param = useParams();
 
     useEffect(() => {
-        axiosInstance.get(`vendor/orders/${UserData()?.vendor_id}/${param.order_oid}/`).then((res) => {
-            setOrder(res.data);
-            setOrderItems(res.data.orderitem);
-        });
-    }, []);
+        const fetchOrderDetails = async () => {
+            try {
+                const res = await apiInstance.get(`vendor/orders/${UserData()?.vendor_id}/${param.order_oid}/`);
+                setOrder(res.data);
+                setOrderItems(res.data.orderitem);
+            } catch (error) {
+                console.error('Error fetching order details:', error);
+            }
+        };
+
+        if (apiInstance) {
+            fetchOrderDetails();
+        }
+    }, [apiInstance, param.order_oid]);
 
     return (
         <main className="mt-5">
             <div className="container">
                 <section className="">
                     <div className="row">
-                        {/* Sidebar Here */}
                         <Sidebar />
-
                         <div className="col-lg-9 mt-1">
                             <main className="mb-5">
                                 <div className="container px-4">
                                     <section className="mb-5">
                                         <h3 className="mb-3">
-                                            {" "}
-                                            <i className="fas fa-shopping-cart text-primary" /> Order ID: #{order.oid}{" "}
+                                            <i className="fas fa-shopping-cart text-primary" /> Order ID: #{order.oid}
                                         </h3>
                                         <div className="row gx-xl-5">
                                             <div className="col-lg-3 mb-4 mb-lg-0">
@@ -51,7 +55,6 @@ function OrderDetail() {
                                             {/* Other columns */}
                                         </div>
                                     </section>
-
                                     <section className="">
                                         <div className="row rounded shadow p-3">
                                             <div className="col-lg-12 mb-4 mb-lg-0">
@@ -67,36 +70,36 @@ function OrderDetail() {
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        {orderItems?.map((order, index) => (
+                                                        {orderItems?.map((orderItem, index) => (
                                                             <tr key={index}>
                                                                 <td>
                                                                     <div className="d-flex align-items-center">
                                                                         <img
-                                                                            src={order?.product?.image}
+                                                                            src={orderItem?.product?.image}
                                                                             style={{ width: 80 }}
                                                                             alt=""
                                                                         />
-                                                                        <Link to={`/detail/${order.product.slug}`} className="fw-bold text-dark ms-2 mb-0">
-                                                                            {order?.product?.title}
+                                                                        <Link to={`/detail/${orderItem.product.slug}`} className="fw-bold text-dark ms-2 mb-0">
+                                                                            {orderItem?.product?.title}
                                                                         </Link>
                                                                     </div>
                                                                 </td>
                                                                 <td>
-                                                                    <p className="fw-normal mb-1">${order.product.price}</p>
+                                                                    <p className="fw-normal mb-1">${orderItem.price}</p>
                                                                 </td>
                                                                 <td>
-                                                                    <p className="fw-normal mb-1">{order.qty}</p>
+                                                                    <p className="fw-normal mb-1">{orderItem.qty}</p>
                                                                 </td>
                                                                 <td>
-                                                                    <span className="fw-normal mb-1">${order.sub_total}</span>
+                                                                    <span className="fw-normal mb-1">${orderItem.sub_total}</span>
                                                                 </td>
                                                                 <td>
-                                                                    <span className="fw-normal mb-1 text-danger">-${order.saved}</span>
+                                                                    <span className="fw-normal mb-1 text-danger">-${orderItem.saved}</span>
                                                                 </td>
                                                                 <td>
-                                                                    {order.tracking_id == null || order.tracking_id === 'undefined'
-                                                                        ? <Link className="btn btn-primary" to={`/vendor/orders/${param.order_oid}/${order.id}/`}> Add Tracking <i className='fas fa-plus'></i></Link>
-                                                                        : <Link className="btn btn-secondary" to={`/vendor/orders/${param.order_oid}/${order.id}/`}> Edit Tracking <i className='fas fa-edit'></i></Link>
+                                                                    {orderItem.tracking_id == null || orderItem.tracking_id === 'undefined'
+                                                                        ? <Link className="btn btn-primary" to={`/vendor/orders/${param.order_oid}/item/${orderItem.id}/tracking/`}> Add Tracking <i className='fas fa-plus'></i></Link>
+                                                                        : <Link className="btn btn-secondary" to={`/vendor/orders/${param.order_oid}/item/${orderItem.id}/tracking/`}> Edit Tracking <i className='fas fa-edit'></i></Link>
                                                                     }
                                                                 </td>
                                                             </tr>
