@@ -66,41 +66,14 @@ function Reviews() {
                             <p className="fw-bold text-muted mb-0">
                               Product: {r.product.title}
                             </p>
-                            <p className="fw-bold text-muted mb-0">
+                            <div className="fw-bold text-muted mb-0">
                               Rating: {r.rating}
-                              {r.rating === 1 && <i className="fas fa-star" />}
-                              {r.rating === 2 && (
-                                <div>
-                                  <i className="fas fa-star" />
-                                  <i className="fas fa-star" />
-                                </div>
-                              )}
-                              {r.rating === 3 && (
-                                <div>
-                                  <i className="fas fa-star" />
-                                  <i className="fas fa-star" />
-                                  <i className="fas fa-star" />
-                                </div>
-                              )}
-                              {r.rating === 4 && (
-                                <div>
-                                  <i className="fas fa-star" />
-                                  <i className="fas fa-star" />
-                                  <i className="fas fa-star" />
-                                  <i className="fas fa-star" />
-                                </div>
-                              )}
-                              {r.rating === 5 && (
-                                <div>
-                                  <i className="fas fa-star" />
-                                  <i className="fas fa-star" />
-                                  <i className="fas fa-star" />
-                                  <i className="fas fa-star" />
-                                  <i className="fas fa-star" />
-                                </div>
-                              )}
-                              {r.rating === 0 && <div><i className="fas fa-star" /></div>}
-                            </p>
+                              <span>
+                                {Array.from({ length: r.rating }).map((_, i) => (
+                                  <i key={i} className="fas fa-star" />
+                                ))}
+                              </span>
+                            </div>
                             <div className="d-flex mt-3">
                               <p className="fw-bold text-muted mb-0">
                                 <Link to={`/vendor/reviews/${r.id}/`} className="btn btn-primary">

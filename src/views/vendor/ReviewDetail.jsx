@@ -15,7 +15,7 @@ function ReviewDetail() {
             ...updateReview,
             [event.target.name] : event.target.value
         })
-        console.log(updateReview)
+        
     }
 
     const param = useParams()

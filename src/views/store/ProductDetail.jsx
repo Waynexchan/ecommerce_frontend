@@ -67,7 +67,7 @@ function ProductDetail() {
     
     useEffect(() => {
         fetchReviewData();
-    }, [product]);
+    }, []);
 
     const handleReviewChange = (event) => {
         setCreateReview({

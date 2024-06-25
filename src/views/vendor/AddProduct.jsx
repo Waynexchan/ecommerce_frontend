@@ -192,52 +192,58 @@ function AddProduct() {
                                                 <div className="card-body">
                                                     <div className="row text-dark">
                                                         <div className="col-lg-6 mb-2">
-                                                            <label htmlFor="" className="mb-2">
+                                                            <label htmlFor="productImage" className="mb-2">
                                                                 Product Thumbnail
                                                             </label>
                                                             <input
                                                                 type="file"
                                                                 className="form-control"
                                                                 name="image"
+                                                                id="productImage"
                                                                 onChange={handleProductFileChange}
+                                                                autoComplete="off"
                                                             />
                                                         </div>
                                                         <div className="col-lg-6 mb-2 ">
-                                                            <label htmlFor="" className="mb-2">
+                                                            <label htmlFor="title" className="mb-2">
                                                                 Title
                                                             </label>
                                                             <input
                                                                 type="text"
                                                                 className="form-control"
                                                                 name="title"
+                                                                id="title"
                                                                 value={product.title || ''}
                                                                 onChange={handleProductInputChange}
+                                                                autoComplete="off"
                                                             />
                                                         </div>
                                                         <div className="col-lg-12 mb-2">
-                                                            <label htmlFor="" className="mb-2">
+                                                            <label htmlFor="description" className="mb-2">
                                                                 Description
                                                             </label>
                                                             <textarea
                                                                 className="form-control"
-                                                                id=""
+                                                                id="description"
                                                                 cols={30}
                                                                 rows={10}
                                                                 name="description"
                                                                 value={product.description || ''}
                                                                 onChange={handleProductInputChange}
+                                                                autoComplete="off"
                                                             />
                                                         </div>
                                                         <div className="col-lg-12 mb-2">
-                                                            <label htmlFor="" className="mb-2">
+                                                            <label htmlFor="category" className="mb-2">
                                                                 Category
                                                             </label>
                                                             <select
                                                                 className="select form-control"
-                                                                id=""
+                                                                id="category"
                                                                 name="category"
                                                                 value={product.category || ''}
                                                                 onChange={handleProductInputChange}
+                                                                autoComplete="off"
                                                             >
                                                                 <option value="">- Select -</option>
                                                                 {Array.isArray(category) && category.map((c, index) => (
@@ -247,51 +253,59 @@ function AddProduct() {
                                                         </div>
 
                                                         <div className="col-lg-6 mb-2 ">
-                                                            <label htmlFor="" className="mb-2">
+                                                            <label htmlFor="price" className="mb-2">
                                                                 Sale Price
                                                             </label>
                                                             <input
                                                                 type="number"
                                                                 className="form-control"
                                                                 name="price"
+                                                                id="price"
                                                                 value={product.price || ''}
                                                                 onChange={handleProductInputChange}
+                                                                autoComplete="off"
                                                             />
                                                         </div>
                                                         <div className="col-lg-6 mb-2 ">
-                                                            <label htmlFor="" className="mb-2">
+                                                            <label htmlFor="old_price" className="mb-2">
                                                                 Regular Price
                                                             </label>
                                                             <input
                                                                 type="number"
                                                                 className="form-control"
                                                                 name="old_price"
+                                                                id="old_price"
                                                                 value={product.old_price || ''}
                                                                 onChange={handleProductInputChange}
+                                                                autoComplete="off"
                                                             />
                                                         </div>
                                                         <div className="col-lg-6 mb-2 ">
-                                                            <label htmlFor="" className="mb-2">
+                                                            <label htmlFor="shipping_amount" className="mb-2">
                                                                 Shipping Amount
                                                             </label>
                                                             <input
                                                                 type="number"
                                                                 className="form-control"
                                                                 name="shipping_amount"
+                                                                id="shipping_amount"
                                                                 value={product.shipping_amount || ''}
                                                                 onChange={handleProductInputChange}
+                                                                autoComplete="off"
                                                             />
                                                         </div>
                                                         <div className="col-lg-6 mb-2 ">
-                                                            <label htmlFor="" className="mb-2">
+                                                            <label htmlFor="stock_qty" className="mb-2">
                                                                 Stock Qty
                                                             </label>
                                                             <input
                                                                 type="number"
                                                                 className="form-control"
                                                                 name="stock_qty"
+                                                                id="stock_qty"
                                                                 value={product.stock_qty || ''}
                                                                 onChange={handleProductInputChange}
+                                                                autoComplete="off"
                                                             />
                                                         </div>
                                                     </div>
@@ -324,13 +338,15 @@ function AddProduct() {
                                                                 )}
                                                             </div>
                                                             <div className="col-lg-3">
-                                                                <label htmlFor="" className="">
+                                                                <label htmlFor={`galleryImage${index}`} className="">
                                                                     Product Image
                                                                 </label>
                                                                 <input
                                                                     type="file"
                                                                     className="form-control"
+                                                                    id={`galleryImage${index}`}
                                                                     onChange={(e) => handleImageChange(index, e, setGallery)}
+                                                                    autoComplete="off"
                                                                 />
                                                             </div>
                                                             <div className="col-lg-3 ">
@@ -365,25 +381,29 @@ function AddProduct() {
                                                     {specifications.map((specification, index) => (
                                                         <div className="row text-dark" key={index}>
                                                             <div className="col-lg-5 mb-2">
-                                                                <label htmlFor="" className="">
+                                                                <label htmlFor={`specTitle${index}`} className="">
                                                                     Title
                                                                 </label>
                                                                 <input
                                                                     type="text"
                                                                     className="form-control"
+                                                                    id={`specTitle${index}`}
                                                                     value={specification.title || ''}
                                                                     onChange={(e) => handleInputChange(index, 'title', e.target.value, setSpecifications)}
+                                                                    autoComplete="off"
                                                                 />
                                                             </div>
                                                             <div className="col-lg-5 ">
-                                                                <label htmlFor="" className="">
+                                                                <label htmlFor={`specContent${index}`} className="">
                                                                     Content
                                                                 </label>
                                                                 <input
                                                                     type="text"
                                                                     className="form-control"
+                                                                    id={`specContent${index}`}
                                                                     value={specification.content || ''}
                                                                     onChange={(e) => handleInputChange(index, 'content', e.target.value, setSpecifications)}
+                                                                    autoComplete="off"
                                                                 />
                                                             </div>
                                                             <div className="col-lg-2 ">
@@ -419,7 +439,7 @@ function AddProduct() {
                                                     {sizes.map((s, index) => (
                                                         <div className="row text-dark" key={index}>
                                                             <div className="col-lg-3 mb-2">
-                                                                <label htmlFor="" className="mb-2">
+                                                                <label htmlFor={`sizeName${index}`} className="mb-2">
                                                                     Name
                                                                 </label>
                                                                 <input
@@ -427,13 +447,14 @@ function AddProduct() {
                                                                     className="form-control"
                                                                     name=""
                                                                     placeholder="XXL"
-                                                                    id=""
+                                                                    id={`sizeName${index}`}
                                                                     value={s.name || ''}
                                                                     onChange={(e) => handleInputChange(index, 'name', e.target.value, setSizes)}
+                                                                    autoComplete="off"
                                                                 />
                                                             </div>
                                                             <div className="col-lg-6 mb-2">
-                                                                <label htmlFor="" className="mb-2">
+                                                                <label htmlFor={`sizePrice${index}`} className="mb-2">
                                                                     Price
                                                                 </label>
                                                                 <input
@@ -441,9 +462,10 @@ function AddProduct() {
                                                                     placeholder="$20"
                                                                     className="form-control"
                                                                     name=""
-                                                                    id=""
+                                                                    id={`sizePrice${index}`}
                                                                     value={s.price || ''}
                                                                     onChange={(e) => handleInputChange(index, 'price', e.target.value, setSizes)}
+                                                                    autoComplete="off"
                                                                 />
                                                             </div>
                                                             <div className="col-lg-3 mt-2">
@@ -476,7 +498,7 @@ function AddProduct() {
                                                     {colors.map((c, index) => (
                                                         <div className="row text-dark" key={index}>
                                                             <div className="col-lg-5 ">
-                                                                <label htmlFor="" className="">
+                                                                <label htmlFor={`colorName${index}`} className="">
                                                                     Name
                                                                 </label>
                                                                 <input
@@ -485,10 +507,12 @@ function AddProduct() {
                                                                     placeholder="Green"
                                                                     onChange={(e) => handleInputChange(index, 'name', e.target.value, setColors)}
                                                                     value={c.name || ''}
+                                                                    id={`colorName${index}`}
+                                                                    autoComplete="off"
                                                                 />
                                                             </div>
                                                             <div className="col-lg-5 ">
-                                                                <label htmlFor="" className="">
+                                                                <label htmlFor={`colorCode${index}`} className="">
                                                                     Code
                                                                 </label>
                                                                 <input
@@ -497,6 +521,8 @@ function AddProduct() {
                                                                     className="form-control"
                                                                     onChange={(e) => handleInputChange(index, 'color_code', e.target.value, setColors)}
                                                                     value={c.color_code || ''}
+                                                                    id={`colorCode${index}`}
+                                                                    autoComplete="off"
                                                                 />
                                                             </div>
                                                             <div className="col-lg-2 ">

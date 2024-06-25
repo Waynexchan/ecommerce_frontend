@@ -15,7 +15,7 @@ function Login() {
         if (isLoggedIn()) {
             navigate('/');
         }
-    }, [isLoggedIn, navigate]);
+    }, []);
 
     const resetForm = () => {
         setEmail("");
@@ -47,7 +47,6 @@ function Login() {
             <section>
                 <main className="" style={{ marginBottom: 100, marginTop: 50 }}>
                     <div className="container">
-                        {/* Section: Login form */}
                         <section className="">
                             <div className="row d-flex justify-content-center">
                                 <div className="col-xl-5 col-md-8">
@@ -55,31 +54,24 @@ function Login() {
                                         <div className="card-body p-4">
                                             <h3 className="text-center">Login</h3>
                                             <br />
-
                                             <div className="tab-content">
-                                                <div
-                                                    className="tab-pane fade show active"
-                                                    id="pills-login"
-                                                    role="tabpanel"
-                                                    aria-labelledby="tab-login"
-                                                >
+                                                <div className="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="tab-login">
                                                     <form onSubmit={handleLogin}>
-                                                        {/* Email input */}
                                                         <div className="form-outline mb-4">
-                                                            <label className="form-label" htmlFor="Full Name">
+                                                            <label className="form-label" htmlFor="loginEmail">
                                                                 Email Address
                                                             </label>
                                                             <input
                                                                 type="email"
-                                                                id="loginName"
+                                                                id="loginEmail"
                                                                 name="email"
                                                                 value={email}
                                                                 className="form-control"
-                                                                onChange={(e)=> setEmail(e.target.value)}
-
+                                                                onChange={(e) => setEmail(e.target.value)}
+                                                                required
+                                                                autoComplete="email"
                                                             />
                                                         </div>
-
                                                         <div className="form-outline mb-4">
                                                             <label className="form-label" htmlFor="loginPassword">
                                                                 Password
@@ -90,10 +82,11 @@ function Login() {
                                                                 name="password"
                                                                 value={password}
                                                                 className="form-control"
-                                                                onChange={(e)=> setPassword(e.target.value)}
+                                                                onChange={(e) => setPassword(e.target.value)}
+                                                                required
+                                                                autoComplete="current-password"
                                                             />
                                                         </div>
-
                                                         <button className='btn btn-primary w-100' type="submit" disabled={isLoading}>
                                                             {isLoading ? (
                                                                 <>
@@ -107,7 +100,6 @@ function Login() {
                                                                 </>
                                                             )}
                                                         </button>
-
                                                         <div className="text-center">
                                                             <p className='mt-4'>
                                                                 Not a member? <Link to="/register">Register</Link>

@@ -20,7 +20,7 @@ function Register() {
         if (isLoggedIn()) {
             navigate('/');
         }
-    }, [isLoggedIn, navigate]);
+    }, []);
 
     const resetForm = () => {
         setForm({

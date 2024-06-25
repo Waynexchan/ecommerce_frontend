@@ -16,7 +16,7 @@ function Account() {
                 setProfile(res.data);
             }).catch(err => console.error(err));
         }
-    }, [userData?.user_id]);
+    }, []);
     return (
         
         <main className="mt-5">

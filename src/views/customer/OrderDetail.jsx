@@ -15,7 +15,7 @@ function OrderDetail() {
                 setOrder(res.data);
             }).catch(err => console.error(err));
         }
-    }, [userData?.user_id, param.order_oid]);
+    }, []);
 
     return (
         <main className="mt-5">

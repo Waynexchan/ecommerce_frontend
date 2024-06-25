@@ -13,7 +13,7 @@ function Orders() {
         if (userData?.vendor_id) {
             fetchOrders();
         }
-    }, [userData?.vendor_id]);
+    }, []);
 
     const fetchOrders = async () => {
         try {

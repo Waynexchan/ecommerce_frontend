@@ -19,7 +19,7 @@ function StoreHeader() {
         debounce((search) => {
             navigate(`/search?query=${search}`);
         }, 500),
-        [navigate]
+        []
     );
 
     const handleSearchChange = (event) => {

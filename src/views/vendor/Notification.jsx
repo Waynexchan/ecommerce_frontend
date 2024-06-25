@@ -29,7 +29,7 @@ const Notification = () => {
     useEffect(() => {
         fetchNoti();
         fetchNotiStats();
-    }, [fetchNoti, fetchNotiStats]);
+    }, []);
 
     const markAsSeen = useCallback(async (notiId) => {
         try {

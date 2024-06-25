@@ -23,7 +23,7 @@ function Sidebar() {
                 setNotificationCount(res.data.length); // Update this line if your API returns a different structure
             });
         }
-    }, [userData?.user_id]);
+    }, []);
 
     const defaultImage = "https://multivendor-swecommerce-bucket.s3.eu-north-1.amazonaws.com/static/image/default-user.jpg";
 

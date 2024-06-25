@@ -72,7 +72,7 @@ function Products() {
           setLoadingProducts(false);
         });
     }
-  }, [cache]);
+  }, []);
 
   useEffect(() => {
     if (cache['categories']) {
@@ -90,7 +90,7 @@ function Products() {
           setLoadingCategories(false);
         });
     }
-  }, [cache]);
+  }, []);
 
   const handleAddToCart = async (productId, price, shippingAmount) => {
     const formData = new FormData();

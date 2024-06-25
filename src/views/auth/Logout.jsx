@@ -12,7 +12,7 @@ function Logout() {
         };
         
         performLogout();
-    }, [navigate]);
+    }, []);
 
     return (
         <section>

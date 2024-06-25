@@ -24,6 +24,7 @@ import UserData from './views/plugin/UserData'
 import apiInstance from './utils/axios'
 import Account from './views/customer/Account'
 import PrivateRoute from './layout/PrivateRoute'
+import VendorPrivateRoute from './layout/VendorPrivateRoute'
 import Orders from './views/customer/Orders'
 import OrderDetail from './views/customer/OrderDetail'
 import Wishlist from './views/customer/Wishlist'
@@ -50,6 +51,7 @@ import Complaints from './footer/Complaints';
 import HelpCenter from './footer/HelpCenter';
 import Payment from './footer/Payment';
 import Tracking from './views/vendor/Tracking';
+import VendorRegister from './views/vendor/VendorRegister';
 
 
 function App() {
@@ -98,21 +100,22 @@ function App() {
             <Route path='/customer/invoice/:order_oid/' element= {<PrivateRoute><Invoice /></PrivateRoute>}/>
 
             {/* Vendor Routes */}
-            <Route path='/vendor/dashboard/' element= {<PrivateRoute>< Dashboard/></PrivateRoute>}/>
-            <Route path='/vendor/products/' element= {<PrivateRoute><Product /></PrivateRoute>}/>
-            <Route path='/vendor/orders/' element= {<PrivateRoute><VendorOrders /></PrivateRoute>}/>
-            <Route path='/vendor/orders/:order_oid/' element= {<PrivateRoute><VendorOrderDetail /></PrivateRoute>}/>
-            <Route path="/vendor/orders/:order_oid/item/:order_item_id/tracking/" element= {<PrivateRoute><Tracking /></PrivateRoute>}/>
-            <Route path='/vendor/earning/' element= {<PrivateRoute><Earning /></PrivateRoute>}/>
-            <Route path='/vendor/reviews/' element= {<PrivateRoute><Reviews /></PrivateRoute>}/>
-            <Route path='/vendor/reviews/:review_id/' element= {<PrivateRoute><ReviewDetail /></PrivateRoute>}/>
-            <Route path='/vendor/coupon/' element= {<PrivateRoute><Coupon /></PrivateRoute>}/>
-            <Route path='/vendor/coupon/:coupon_id/' element= {<PrivateRoute><EditCoupon /></PrivateRoute>}/>
-            <Route path='/vendor/notifications/' element= {<PrivateRoute><Notification /></PrivateRoute>}/>
-            <Route path='/vendor/settings/' element= {<PrivateRoute><VendorSettings /></PrivateRoute>}/>
-            <Route path='/vendor/:slug/' element= {<PrivateRoute><Shop /></PrivateRoute>}/>
-            <Route path='/vendor/product/new/' element= {<PrivateRoute><AddProduct /></PrivateRoute>}/>
-            <Route path='/vendor/product/update/:pid/' element= {<PrivateRoute><UpdateProduct /></PrivateRoute>}/>
+            <Route path='/vendor/register/' element= {<PrivateRoute>< VendorRegister/></PrivateRoute>}/>
+            <Route path='/vendor/dashboard/' element={<VendorPrivateRoute><Dashboard /></VendorPrivateRoute>} />
+            <Route path='/vendor/products/' element={<VendorPrivateRoute><Product /></VendorPrivateRoute>} />
+            <Route path='/vendor/orders/' element={<VendorPrivateRoute><VendorOrders /></VendorPrivateRoute>} />
+            <Route path='/vendor/orders/:order_oid/' element={<VendorPrivateRoute><VendorOrderDetail /></VendorPrivateRoute>} />
+            <Route path="/vendor/orders/:order_oid/item/:order_item_id/tracking/" element={<VendorPrivateRoute><Tracking /></VendorPrivateRoute>} />
+            <Route path='/vendor/earning/' element={<VendorPrivateRoute><Earning /></VendorPrivateRoute>} />
+            <Route path='/vendor/reviews/' element={<VendorPrivateRoute><Reviews /></VendorPrivateRoute>} />
+            <Route path='/vendor/reviews/:review_id/' element={<VendorPrivateRoute><ReviewDetail /></VendorPrivateRoute>} />
+            <Route path='/vendor/coupon/' element={<VendorPrivateRoute><Coupon /></VendorPrivateRoute>} />
+            <Route path='/vendor/coupon/:coupon_id/' element={<VendorPrivateRoute><EditCoupon /></VendorPrivateRoute>} />
+            <Route path='/vendor/notifications/' element={<VendorPrivateRoute><Notification /></VendorPrivateRoute>} />
+            <Route path='/vendor/settings/' element={<VendorPrivateRoute><VendorSettings /></VendorPrivateRoute>} />
+            <Route path='/vendor/:slug/' element={<VendorPrivateRoute><Shop /></VendorPrivateRoute>} />
+            <Route path='/vendor/product/new/' element={<VendorPrivateRoute><AddProduct /></VendorPrivateRoute>} />
+            <Route path='/vendor/product/update/:pid/' element={<VendorPrivateRoute><UpdateProduct /></VendorPrivateRoute>} />
 
             {/* footer */}
             <Route path="/return-policy" element={<ReturnPolicy />} />

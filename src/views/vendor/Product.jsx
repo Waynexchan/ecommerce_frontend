@@ -27,7 +27,7 @@ function Product() {
                 setProducts([]);
             });
         }
-    }, [userData?.vendor_id]);
+    }, []);
 
     const handleDeleteProduct = async (productPid) => {
         await apiInstance.delete(`vendor-delete-product/${UserData()?.vendor_id}/${productPid}/`)

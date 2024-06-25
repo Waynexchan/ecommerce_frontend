@@ -1,4 +1,4 @@
-import  { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import apiInstance from '../../utils/axios';
 
@@ -38,7 +38,7 @@ function PaymentSuccess() {
     
             setIsLoading(true);
             try {
-                const res = await apiInstance.post(`payment-success/`, formData);
+                const res = await apiInstance.post('payment-success/', formData);
                 setOrderResponse(res.data);
                 setIsLoading(false);
             } catch (error) {
@@ -90,7 +90,7 @@ function PaymentSuccess() {
                                                                             <div className="text-center">
                                                                                 <h1>Already Paid!</h1>
                                                                                 <p>You have already paid for this order, thank you.</p>
-                                                                                <button onClick={handleViewOrder} className="btn btn-success mt-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                                                                <button onClick={handleViewOrder} className="btn btn-success mt-3">
                                                                                     View Order <i className="fas fa-eye" />
                                                                                 </button>
                                                                                 <Link to={`/customer/invoice/${order.oid}/`} className="btn btn-primary mt-3 ms-2">
@@ -111,7 +111,7 @@ function PaymentSuccess() {
                                                                                     Thank you, please note your order id <b>#{order.oid}</b><br />
                                                                                     We have sent an order summary to your linked email address <b>({order.email})</b>
                                                                                 </p>
-                                                                                <button className="btn btn-success mt-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                                                                <button onClick={handleViewOrder} className="btn btn-success mt-3">
                                                                                     View Order <i className="fas fa-eye" />
                                                                                 </button>
                                                                                 <Link to={`/customer/invoice/${order.oid}/`} className="btn btn-primary mt-3 ms-2">

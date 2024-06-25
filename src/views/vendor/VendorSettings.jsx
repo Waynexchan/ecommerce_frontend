@@ -6,10 +6,26 @@ import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 function Settings() {
-  const [profileData, setProfileData] = useState([]);
+  const [profileData, setProfileData] = useState({
+    full_name: '',
+    about: '',
+    user: {
+      email: '',
+      phone: '',
+    },
+    image: null,
+  });
+
   const [ProfileImage, setProfileImage] = useState('');
-  const [vendorImage, setVendorImage] = useState([]);
-  const [vendorData, setVendorData] = useState([]);
+  const [vendorImage, setVendorImage] = useState('');
+  const [vendorData, setVendorData] = useState({
+    name: '',
+    email: '',
+    description: '',
+    mobile: '',
+    image: null,
+    slug: ''
+  });
 
   const fetchProfileData = async () => {
     const res = await apiInstance.get(`vendor-settings/${UserData()?.user_id}/`);
@@ -47,7 +63,7 @@ function Settings() {
       ...vendorData,
       [event.target.name]: event.target.value,
     });
-    console.log(vendorData);
+    
   };
 
   const handleVendorFileChange = (event) => {
@@ -136,8 +152,8 @@ function Settings() {
                           <div className="d-flex flex-column align-items-center text-center">
                             <img src={ProfileImage} style={{ width: 160, height: 160, objectFit: 'cover' }} alt="Admin" className="rounded-circle" width={150} />
                             <div className="mt-3">
-                              <h4 className="text-dark">{profileData.full_name}</h4>
-                              <p className="text-secondary mb-1">{profileData.about}</p>
+                              <h4 className="text-dark">{profileData.full_name || ''}</h4>
+                              <p className="text-secondary mb-1">{profileData.about || ''}</p>
                             </div>
                           </div>
                         </div>
@@ -149,24 +165,24 @@ function Settings() {
                           <form className="form-group" method="POST" noValidate="" encType="multipart/form-data" onSubmit={handleProfileSubmit}>
                             <div className="row text-dark">
                               <div className="col-lg-6 mb-2">
-                                <label htmlFor="" className="mb-2">Profile Image</label>
-                                <input type="file" className="form-control" name="image" id="" onChange={handleFileChange} />
+                                <label htmlFor="profileImage" className="mb-2">Profile Image</label>
+                                <input type="file" className="form-control" name="image" id="profileImage" onChange={handleFileChange} />
                               </div>
                               <div className="col-lg-6 mb-2">
-                                <label htmlFor="" className="mb-2">Full Name</label>
-                                <input type="text" className="form-control" id="" value={profileData.full_name} onChange={handleInputChange} name="full_name" />
+                                <label htmlFor="fullName" className="mb-2">Full Name</label>
+                                <input type="text" className="form-control" id="fullName" value={profileData.full_name || ''} onChange={handleInputChange} name="full_name" />
                               </div>
                               <div className="col-lg-6 mb-2">
-                                <label htmlFor="" className="mb-2">Email</label>
-                                <input type="text" className="form-control" name="" id="" value={profileData.user?.email} readOnly />
+                                <label htmlFor="email" className="mb-2">Email</label>
+                                <input type="text" className="form-control" name="email" id="email" value={profileData.user?.email || ''} readOnly />
                               </div>
                               <div className="col-lg-6 mb-2">
-                                <label htmlFor="" className="mb-2">Phone Number</label>
-                                <input type="text" className="form-control" name="" id="" value={profileData.user?.phone} readOnly />
+                                <label htmlFor="phoneNumber" className="mb-2">Phone Number</label>
+                                <input type="text" className="form-control" name="phoneNumber" id="phoneNumber" value={profileData.user?.phone || ''} readOnly />
                               </div>
                               <div className="col-lg-12 mb-2">
-                                <label htmlFor="" className="mb-2">About Me</label>
-                                <textarea value={profileData.about} id="" cols="30" rows="10" onChange={handleInputChange} name="about" className="form-control"></textarea>
+                                <label htmlFor="aboutMe" className="mb-2">About Me</label>
+                                <textarea value={profileData.about || ''} id="aboutMe" cols="30" rows="10" onChange={handleInputChange} name="about" className="form-control"></textarea>
                               </div>
                               <div className="col-lg-6 mt-4 mb-3">
                                 <button className="btn btn-success" type="submit">Update Profile <i className="fas fa-check-circle" /></button>
@@ -186,8 +202,8 @@ function Settings() {
                           <div className="d-flex flex-column align-items-center text-center">
                             <img src={vendorImage} style={{ width: 160, height: 160, objectFit: 'cover' }} alt="Admin" className="rounded-circle" width={150} />
                             <div className="mt-3">
-                              <h4 className="text-dark">{vendorData.name}</h4>
-                              <p className="text-secondary mb-1">{vendorData.description}</p>
+                              <h4 className="text-dark">{vendorData.name || ''}</h4>
+                              <p className="text-secondary mb-1">{vendorData.description || ''}</p>
                             </div>
                           </div>
                         </div>
@@ -199,24 +215,24 @@ function Settings() {
                           <form className="form-group" method="POST" noValidate="" encType="multipart/form-data" onSubmit={handleVendorSubmit}>
                             <div className="row text-dark">
                               <div className="col-lg-12 mb-2">
-                                <label htmlFor="" className="mb-2">Shop Image</label>
-                                <input type="file" className="form-control" name="image" id="" onChange={handleVendorFileChange} />
+                                <label htmlFor="shopImage" className="mb-2">Shop Image</label>
+                                <input type="file" className="form-control" name="image" id="shopImage" onChange={handleVendorFileChange} />
                               </div>
                               <div className="col-lg-12 mb-2">
-                                <label htmlFor="" className="mb-2">Shop Name</label>
-                                <input type="text" className="form-control" name="name" id="" value={vendorData.name} onChange={handleVendorChange} />
+                                <label htmlFor="shopName" className="mb-2">Shop Name</label>
+                                <input type="text" className="form-control" name="name" id="shopName" value={vendorData.name || ''} onChange={handleVendorChange} />
                               </div>
                               <div className="col-lg-12 mb-2">
-                                <label htmlFor="" className="mb-2">Shop Email</label>
-                                <input type="text" className="form-control" name="email" id="" value={vendorData.email} onChange={handleVendorChange} />
+                                <label htmlFor="shopEmail" className="mb-2">Shop Email</label>
+                                <input type="text" className="form-control" name="email" id="shopEmail" value={vendorData.email || ''} onChange={handleVendorChange} />
                               </div>
                               <div className="col-lg-6 mb-2">
-                                <label htmlFor="" className="mb-2">Phone Number</label>
-                                <input type="text" className="form-control" name="" id="" value={vendorData.mobile} />
+                                <label htmlFor="shopPhoneNumber" className="mb-2">Phone Number</label>
+                                <input type="text" className="form-control" name="shopPhoneNumber" id="shopPhoneNumber" value={vendorData.mobile || ''} onChange={handleVendorChange}/>
                               </div>
                               <div className="col-lg-12 mb-2">
-                                <label htmlFor="" className="mb-2">Shop Description</label>
-                                <textarea name="description" id="" onChange={handleVendorChange} value={vendorData.description} cols="30" className="form-control" rows="10"></textarea>
+                                <label htmlFor="shopDescription" className="mb-2">Shop Description</label>
+                                <textarea name="description" id="shopDescription" onChange={handleVendorChange} value={vendorData.description || ''} cols="30" className="form-control" rows="10"></textarea>
                               </div>
                               <div className="col-lg-12 mt-4 mb-3 d-flex">
                                 <button className="btn btn-success" type="submit">Update Shop <i className="fas fa-check-circle" /></button>

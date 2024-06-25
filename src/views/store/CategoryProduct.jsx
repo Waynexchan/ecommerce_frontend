@@ -13,7 +13,7 @@ function CategoryProduct() {
                 setProducts(productsData);
             })
             .catch((error) => console.error('Error fetching products by category:', error));
-    }, [slug]);
+    }, []);
 
     return (
         <div>

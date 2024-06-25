@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import apiInstance from '../../utils/axios';
 import UserData from '../plugin/UserData';
-import {  useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 function UpdateProduct() {
     const userData = UserData();
     const param = useParams();
+    const navigate = useNavigate();
+
     const [product, setProduct] = useState({
         title: '',
         image: null,
@@ -19,7 +21,6 @@ function UpdateProduct() {
         stock_qty: '',
         vendor: userData?.vendor_id || null,
     });
-    const navigate = useNavigate();
 
     const [specifications, setSpecifications] = useState([{ title: '', content: '' }]);
     const [colors, setColors] = useState([{ name: '', color_code: '' }]);
@@ -49,10 +50,10 @@ function UpdateProduct() {
 
     const handleImageChange = (index, event, setStateFunction) => {
         const file = event.target.files[0];
-    
+
         if (file) {
             const reader = new FileReader();
-    
+
             reader.onloadend = () => {
                 setStateFunction((prevState) => {
                     const newState = [...prevState];
@@ -60,7 +61,7 @@ function UpdateProduct() {
                     return newState;
                 });
             };
-    
+
             reader.readAsDataURL(file);
         } else {
             setStateFunction((prevState) => {
@@ -71,7 +72,7 @@ function UpdateProduct() {
             });
         }
     };
-    
+
     const handleProductInputChange = (event) => {
         const { name, value } = event.target;
         setProduct({
@@ -104,7 +105,7 @@ function UpdateProduct() {
 
     useEffect(() => {
         apiInstance.get(`category/`).then((res) => {
-            const categoryData = res.data.results ? res.data.results : []
+            const categoryData = res.data.results ? res.data.results : [];
             setCategory(categoryData);
         });
     }, []);
@@ -121,7 +122,7 @@ function UpdateProduct() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         const formData = new FormData();
         formData.append('title', product.title);
         formData.append('description', product.description);
@@ -130,19 +131,16 @@ function UpdateProduct() {
         formData.append('old_price', parseFloat(product.old_price));
         formData.append('shipping_amount', parseFloat(product.shipping_amount));
         formData.append('stock_qty', parseInt(product.stock_qty, 10));
-    
-        // Add product image if it exists
+
         if (product.image && product.image.file) {
             formData.append('image', product.image.file);
         }
-    
-        // Add specifications
+
         specifications.forEach((specification, index) => {
             formData.append(`specifications[${index}][title]`, specification.title);
             formData.append(`specifications[${index}][content]`, specification.content);
         });
-    
-        // Add colors
+
         colors.forEach((color, index) => {
             formData.append(`colors[${index}][name]`, color.name);
             formData.append(`colors[${index}][color_code]`, color.color_code);
@@ -150,8 +148,7 @@ function UpdateProduct() {
                 formData.append(`colors[${index}][image]`, color.image.file);
             }
         });
-    
-        // Add sizes and ensure the price is a valid number
+
         sizes.forEach((size, index) => {
             formData.append(`sizes[${index}][name]`, size.name);
             const sizePrice = parseFloat(size.price);
@@ -161,14 +158,13 @@ function UpdateProduct() {
                 console.warn(`Skipping size with invalid price: ${size.price}`);
             }
         });
-    
-        // Add gallery images
+
         gallery.forEach((item, index) => {
             if (item.image && item.image.file) {
                 formData.append(`gallery[${index}][image]`, item.image.file);
             }
         });
-        
+
         try {
             const response = await apiInstance.patch(`vendor-product-update/${userData?.vendor_id}/${param.pid}/`, formData, {
                 headers: {
@@ -180,31 +176,22 @@ function UpdateProduct() {
                 title: "Product updated successfully",
                 timer: 1500
             });
-    
+
             navigate(`/vendor/products/`);
         } catch (error) {
             console.error(error);
         }
     };
-    
-    
-    
+
     return (
         <div className="container-fluid" id="main">
             <div className="row row-offcanvas row-offcanvas-left h-100">
-                {/* Sidebar Here */}
                 < Sidebar />
-
                 <div className="col-md-9 col-lg-10 main mt-4">
                     <div className="container">
                         <form onSubmit={handleSubmit} className="main-body" encType="multipart/form-data">
                             <div className="tab-content" id="pills-tabContent">
-                                <div
-                                    className="tab-pane fade show active"
-                                    id="pills-home"
-                                    role="tabpanel"
-                                    aria-labelledby="pills-home-tab"
-                                >
+                                <div className="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
                                     <div className="row gutters-sm shadow p-4 rounded">
                                         <h4 className="mb-4">Product Details</h4>
                                         <div className="col-md-12">
@@ -212,49 +199,53 @@ function UpdateProduct() {
                                                 <div className="card-body">
                                                     <div className="row text-dark">
                                                         <div className="col-lg-6 mb-2">
-                                                            <label htmlFor="" className="mb-2">
+                                                            <label htmlFor="productImage" className="mb-2">
                                                                 Product Thumbnail
                                                             </label>
                                                             <input
                                                                 type="file"
                                                                 className="form-control"
                                                                 name="image"
+                                                                id="productImage"
                                                                 onChange={handleProductFileChange}
                                                             />
                                                         </div>
-                                                        <div className="col-lg-6 mb-2 ">
-                                                            <label htmlFor="" className="mb-2">
+                                                        <div className="col-lg-6 mb-2">
+                                                            <label htmlFor="productTitle" className="mb-2">
                                                                 Title
                                                             </label>
                                                             <input
                                                                 type="text"
                                                                 className="form-control"
                                                                 name="title"
+                                                                id="productTitle"
                                                                 value={product.title || ''}
                                                                 onChange={handleProductInputChange}
+                                                                autoComplete="off"
                                                             />
                                                         </div>
                                                         <div className="col-lg-12 mb-2">
-                                                            <label htmlFor="" className="mb-2">
+                                                            <label htmlFor="productDescription" className="mb-2">
                                                                 Description
                                                             </label>
                                                             <textarea
                                                                 className="form-control"
-                                                                id=""
+                                                                id="productDescription"
                                                                 cols={30}
                                                                 rows={10}
                                                                 name="description"
                                                                 value={product.description || ''}
                                                                 onChange={handleProductInputChange}
+                                                                autoComplete="off"
                                                             />
                                                         </div>
                                                         <div className="col-lg-12 mb-2">
-                                                            <label htmlFor="" className="mb-2">
+                                                            <label htmlFor="productCategory" className="mb-2">
                                                                 Category
                                                             </label>
                                                             <select
                                                                 className="select form-control"
-                                                                id=""
+                                                                id="productCategory"
                                                                 name="category"
                                                                 value={product.category || ''}
                                                                 onChange={handleProductInputChange}
@@ -265,53 +256,60 @@ function UpdateProduct() {
                                                                 ))}
                                                             </select>
                                                         </div>
-
-                                                        <div className="col-lg-6 mb-2 ">
-                                                            <label htmlFor="" className="mb-2">
+                                                        <div className="col-lg-6 mb-2">
+                                                            <label htmlFor="productPrice" className="mb-2">
                                                                 Sale Price
                                                             </label>
                                                             <input
                                                                 type="number"
                                                                 className="form-control"
                                                                 name="price"
+                                                                id="productPrice"
                                                                 value={product.price || ''}
                                                                 onChange={handleProductInputChange}
+                                                                autoComplete="off"
                                                             />
                                                         </div>
-                                                        <div className="col-lg-6 mb-2 ">
-                                                            <label htmlFor="" className="mb-2">
+                                                        <div className="col-lg-6 mb-2">
+                                                            <label htmlFor="productOldPrice" className="mb-2">
                                                                 Regular Price
                                                             </label>
                                                             <input
                                                                 type="number"
                                                                 className="form-control"
                                                                 name="old_price"
+                                                                id="productOldPrice"
                                                                 value={product.old_price || ''}
                                                                 onChange={handleProductInputChange}
+                                                                autoComplete="off"
                                                             />
                                                         </div>
-                                                        <div className="col-lg-6 mb-2 ">
-                                                            <label htmlFor="" className="mb-2">
+                                                        <div className="col-lg-6 mb-2">
+                                                            <label htmlFor="productShippingAmount" className="mb-2">
                                                                 Shipping Amount
                                                             </label>
                                                             <input
                                                                 type="number"
                                                                 className="form-control"
                                                                 name="shipping_amount"
+                                                                id="productShippingAmount"
                                                                 value={product.shipping_amount || ''}
                                                                 onChange={handleProductInputChange}
+                                                                autoComplete="off"
                                                             />
                                                         </div>
-                                                        <div className="col-lg-6 mb-2 ">
-                                                            <label htmlFor="" className="mb-2">
+                                                        <div className="col-lg-6 mb-2">
+                                                            <label htmlFor="productStockQty" className="mb-2">
                                                                 Stock Qty
                                                             </label>
                                                             <input
                                                                 type="number"
                                                                 className="form-control"
                                                                 name="stock_qty"
+                                                                id="productStockQty"
                                                                 value={product.stock_qty || ''}
                                                                 onChange={handleProductInputChange}
+                                                                autoComplete="off"
                                                             />
                                                         </div>
                                                     </div>
@@ -320,12 +318,7 @@ function UpdateProduct() {
                                         </div>
                                     </div>
                                 </div>
-                                <div
-                                    className="tab-pane fade"
-                                    id="pills-profile"
-                                    role="tabpanel"
-                                    aria-labelledby="pills-profile-tab"
-                                >
+                                <div className="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
                                     <div className="row gutters-sm shadow p-4 rounded">
                                         <h4 className="mb-4">Product Image</h4>
                                         <div className="col-md-12">
@@ -334,29 +327,23 @@ function UpdateProduct() {
                                                     {gallery.map((item, index) => (
                                                         <div className="row text-dark" key={index}>
                                                             <div className="col-lg-6 mb-2">
-                                                                
                                                                 {item.image && (item.image.preview ? (
                                                                     <img src={item.image.preview} style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: 5 }} alt="" />
-                                                                ):(
-                                                                    <img src={item.image} style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: 5 }} alt="" />    
+                                                                ) : (
+                                                                    <img src={item.image} style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: 5 }} alt="" />
                                                                 ))}
-                                                                
-                                                                
-
-                                                                
-                                                                {/* Default when there is no image selected*/}
                                                                 {!item.image && (
                                                                     <img src="https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png" style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: 5 }} alt="" />
-
                                                                 )}
                                                             </div>
                                                             <div className="col-lg-3">
-                                                                <label htmlFor="" className="">
+                                                                <label htmlFor={`galleryImage-${index}`} className="">
                                                                     Product Image
                                                                 </label>
                                                                 <input
                                                                     type="file"
                                                                     className="form-control"
+                                                                    id={`galleryImage-${index}`}
                                                                     onChange={(e) => handleImageChange(index, e, setGallery)}
                                                                 />
                                                             </div>
@@ -365,11 +352,9 @@ function UpdateProduct() {
                                                             </div>
                                                         </div>
                                                     ))}
-
-                                                    {gallery < 1 &&
+                                                    {gallery.length < 1 &&
                                                         <h4>No Images Selected</h4>
                                                     }
-
                                                     <button onClick={() => handleAddMore(setGallery)} type='button' className="btn btn-primary mt-5">
                                                         <i className="fas fa-plus" /> Add Image
                                                     </button>
@@ -378,12 +363,7 @@ function UpdateProduct() {
                                         </div>
                                     </div>
                                 </div>
-                                <div
-                                    className="tab-pane fade"
-                                    id="pills-contact"
-                                    role="tabpanel"
-                                    aria-labelledby="pills-contact-tab"
-                                >
+                                <div className="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
                                     <div className="row gutters-sm shadow p-4 rounded">
                                         <h4 className="mb-4">Specifications</h4>
                                         <div className="col-md-12">
@@ -392,25 +372,29 @@ function UpdateProduct() {
                                                     {specifications.map((specification, index) => (
                                                         <div className="row text-dark" key={index}>
                                                             <div className="col-lg-5 mb-2">
-                                                                <label htmlFor="" className="">
+                                                                <label htmlFor={`specTitle-${index}`} className="">
                                                                     Title
                                                                 </label>
                                                                 <input
                                                                     type="text"
                                                                     className="form-control"
+                                                                    id={`specTitle-${index}`}
                                                                     value={specification.title || ''}
                                                                     onChange={(e) => handleInputChange(index, 'title', e.target.value, setSpecifications)}
+                                                                    autoComplete="off"
                                                                 />
                                                             </div>
-                                                            <div className="col-lg-5 ">
-                                                                <label htmlFor="" className="">
+                                                            <div className="col-lg-5">
+                                                                <label htmlFor={`specContent-${index}`} className="">
                                                                     Content
                                                                 </label>
                                                                 <input
                                                                     type="text"
                                                                     className="form-control"
+                                                                    id={`specContent-${index}`}
                                                                     value={specification.content || ''}
                                                                     onChange={(e) => handleInputChange(index, 'content', e.target.value, setSpecifications)}
+                                                                    autoComplete="off"
                                                                 />
                                                             </div>
                                                             <div className="col-lg-2 ">
@@ -418,11 +402,9 @@ function UpdateProduct() {
                                                             </div>
                                                         </div>
                                                     ))}
-
-                                                    {specifications < 1 &&
+                                                    {specifications.length < 1 &&
                                                         <h4>No specifications selected</h4>
                                                     }
-
                                                     <button onClick={() => handleAddMore(setSpecifications)} type='button' className="btn btn-primary mt-5">
                                                         <i className="fas fa-plus" /> Add Specifications
                                                     </button>
@@ -431,13 +413,7 @@ function UpdateProduct() {
                                         </div>
                                     </div>
                                 </div>
-
-                                <div
-                                    className="tab-pane fade"
-                                    id="pills-size"
-                                    role="tabpanel"
-                                    aria-labelledby="pills-size-tab"
-                                >
+                                <div className="tab-pane fade" id="pills-size" role="tabpanel" aria-labelledby="pills-size-tab">
                                     <div className="row gutters-sm shadow p-4 rounded">
                                         <h4 className="mb-4">Sizes</h4>
                                         <div className="col-md-12">
@@ -446,7 +422,7 @@ function UpdateProduct() {
                                                     {sizes.map((s, index) => (
                                                         <div className="row text-dark" key={index}>
                                                             <div className="col-lg-3 mb-2">
-                                                                <label htmlFor="" className="mb-2">
+                                                                <label htmlFor={`sizeName-${index}`} className="mb-2">
                                                                     Name
                                                                 </label>
                                                                 <input
@@ -454,13 +430,14 @@ function UpdateProduct() {
                                                                     className="form-control"
                                                                     name=""
                                                                     placeholder="XXL"
-                                                                    id=""
+                                                                    id={`sizeName-${index}`}
                                                                     value={s.name || ''}
                                                                     onChange={(e) => handleInputChange(index, 'name', e.target.value, setSizes)}
+                                                                    autoComplete="off"
                                                                 />
                                                             </div>
                                                             <div className="col-lg-6 mb-2">
-                                                                <label htmlFor="" className="mb-2">
+                                                                <label htmlFor={`sizePrice-${index}`} className="mb-2">
                                                                     Price
                                                                 </label>
                                                                 <input
@@ -468,9 +445,10 @@ function UpdateProduct() {
                                                                     placeholder="$20"
                                                                     className="form-control"
                                                                     name=""
-                                                                    id=""
+                                                                    id={`sizePrice-${index}`}
                                                                     value={s.price || ''}
                                                                     onChange={(e) => handleInputChange(index, 'price', e.target.value, setSizes)}
+                                                                    autoComplete="off"
                                                                 />
                                                             </div>
                                                             <div className="col-lg-3 mt-2">
@@ -478,7 +456,7 @@ function UpdateProduct() {
                                                             </div>
                                                         </div>
                                                     ))}
-                                                    {sizes < 1 &&
+                                                    {sizes.length < 1 &&
                                                         <h4>No Size Added</h4>
                                                     }
                                                     <button type='button' onClick={() => handleAddMore(setSizes)} className="btn btn-primary mt-2">
@@ -489,12 +467,7 @@ function UpdateProduct() {
                                         </div>
                                     </div>
                                 </div>
-                                <div
-                                    className="tab-pane fade"
-                                    id="pills-color"
-                                    role="tabpanel"
-                                    aria-labelledby="pills-color-tab"
-                                >
+                                <div className="tab-pane fade" id="pills-color" role="tabpanel" aria-labelledby="pills-color-tab">
                                     <div className="row gutters-sm shadow p-4 rounded">
                                         <h4 className="mb-4">Color</h4>
                                         <div className="col-md-12">
@@ -502,40 +475,42 @@ function UpdateProduct() {
                                                 <div className="card-body">
                                                     {colors.map((c, index) => (
                                                         <div className="row text-dark" key={index}>
-                                                            <div className="col-lg-5 ">
-                                                                <label htmlFor="" className="">
+                                                            <div className="col-lg-5">
+                                                                <label htmlFor={`colorName-${index}`} className="">
                                                                     Name
                                                                 </label>
                                                                 <input
                                                                     type="text"
                                                                     className="form-control"
                                                                     placeholder="Green"
+                                                                    id={`colorName-${index}`}
                                                                     onChange={(e) => handleInputChange(index, 'name', e.target.value, setColors)}
                                                                     value={c.name || ''}
+                                                                    autoComplete="off"
                                                                 />
                                                             </div>
-                                                            <div className="col-lg-5 ">
-                                                                <label htmlFor="" className="">
+                                                            <div className="col-lg-5">
+                                                                <label htmlFor={`colorCode-${index}`} className="">
                                                                     Code
                                                                 </label>
                                                                 <input
                                                                     type="text"
                                                                     placeholder="#f4f7f6"
                                                                     className="form-control"
+                                                                    id={`colorCode-${index}`}
                                                                     onChange={(e) => handleInputChange(index, 'color_code', e.target.value, setColors)}
                                                                     value={c.color_code || ''}
+                                                                    autoComplete="off"
                                                                 />
                                                             </div>
-                                                            <div className="col-lg-2 ">
+                                                            <div className="col-lg-2">
                                                                 <button onClick={() => handleRemove(index, setColors)} className='btn btn-danger mt-4'>Remove</button>
                                                             </div>
                                                         </div>
                                                     ))}
-
-                                                    {colors < 1 &&
+                                                    {colors.length < 1 &&
                                                         <h4>No color selected</h4>
                                                     }
-
                                                     <button className="btn btn-primary mt-5" type='button' onClick={() => handleAddMore(setColors)}>
                                                         <i className="fas fa-plus" /> Add Color
                                                     </button>
@@ -545,85 +520,36 @@ function UpdateProduct() {
                                     </div>
                                 </div>
                                 <div>
-                                    <ul
-                                        className="nav nav-pills mb-3 d-flex justify-content-center mt-5"
-                                        id="pills-tab"
-                                        role="tablist"
-                                    >
+                                    <ul className="nav nav-pills mb-3 d-flex justify-content-center mt-5" id="pills-tab" role="tablist">
                                         <li className="nav-item" role="presentation">
-                                            <button
-                                                className="nav-link active"
-                                                id="pills-home-tab"
-                                                data-bs-toggle="pill"
-                                                data-bs-target="#pills-home"
-                                                type="button"
-                                                role="tab"
-                                                aria-controls="pills-home"
-                                                aria-selected="true"
-                                            >
+                                            <button className="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">
                                                 Basic Information
                                             </button>
                                         </li>
                                         <li className="nav-item" role="presentation">
-                                            <button
-                                                className="nav-link"
-                                                id="pills-profile-tab"
-                                                data-bs-toggle="pill"
-                                                data-bs-target="#pills-profile"
-                                                type="button"
-                                                role="tab"
-                                                aria-controls="pills-profile"
-                                                aria-selected="false"
-                                            >
+                                            <button className="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">
                                                 Gallery
                                             </button>
                                         </li>
                                         <li className="nav-item" role="presentation">
-                                            <button
-                                                className="nav-link"
-                                                id="pills-contact-tab"
-                                                data-bs-toggle="pill"
-                                                data-bs-target="#pills-contact"
-                                                type="button"
-                                                role="tab"
-                                                aria-controls="pills-contact"
-                                                aria-selected="false"
-                                            >
+                                            <button className="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">
                                                 Specifications
                                             </button>
                                         </li>
                                         <li className="nav-item" role="presentation">
-                                            <button
-                                                className="nav-link"
-                                                id="pills-size-tab"
-                                                data-bs-toggle="pill"
-                                                data-bs-target="#pills-size"
-                                                type="button"
-                                                role="tab"
-                                                aria-controls="pills-size"
-                                                aria-selected="false"
-                                            >
+                                            <button className="nav-link" id="pills-size-tab" data-bs-toggle="pill" data-bs-target="#pills-size" type="button" role="tab" aria-controls="pills-size" aria-selected="false">
                                                 Size
                                             </button>
                                         </li>
                                         <li className="nav-item" role="presentation">
-                                            <button
-                                                className="nav-link"
-                                                id="pills-color-tab"
-                                                data-bs-toggle="pill"
-                                                data-bs-target="#pills-color"
-                                                type="button"
-                                                role="tab"
-                                                aria-controls="pills-color"
-                                                aria-selected="false"
-                                            >
+                                            <button className="nav-link" id="pills-color-tab" data-bs-toggle="pill" data-bs-target="#pills-color" type="button" role="tab" aria-controls="pills-color" aria-selected="false">
                                                 Color
                                             </button>
                                         </li>
                                     </ul>
                                     <div className="d-flex justify-content-center mb-5">
                                         <button className="btn btn-success w-50" type='submit'>
-                                            Update Product <i className="fa fa-check-circle" />{" "}
+                                            Update Product <i className="fa fa-check-circle" />
                                         </button>
                                     </div>
                                 </div>
@@ -633,7 +559,7 @@ function UpdateProduct() {
                 </div>
             </div>
         </div>
-    )
+    );
 }
 
-export default UpdateProduct
+export default UpdateProduct;

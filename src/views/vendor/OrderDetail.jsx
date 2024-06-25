@@ -24,7 +24,7 @@ function OrderDetail() {
         if (apiInstance) {
             fetchOrderDetails();
         }
-    }, [apiInstance, param.order_oid]);
+    }, []);
 
     return (
         <main className="mt-5">

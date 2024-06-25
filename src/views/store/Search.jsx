@@ -100,7 +100,7 @@ function Search() {
     } catch (error) {
       console.error('Error adding to cart:', error);
     }
-  }, [userData?.user_id, qtyValue, sizeValue, colorValue, currentAddress.country, cart_id]);
+  }, []);
 
   const addToWishlist = async (productId, userId) => {
     if (!userId || userId === "undefined") {

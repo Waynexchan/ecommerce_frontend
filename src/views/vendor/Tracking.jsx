@@ -13,7 +13,7 @@ function Tracking() {
             const orderItem = res.data.results[0]; // Ensure this correctly references the first result
             setTrackingInfo(orderItem.tracking_id || '');
         });
-    }, [order_oid, order_item_id]);
+    }, []);
 
     const handleSave = () => {
         // Save tracking info

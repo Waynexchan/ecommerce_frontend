@@ -37,14 +37,14 @@ function Shop() {
         apiInstance.get(`shop/${param.slug}/`).then((res) => {
             setVendor(res.data);
         });
-    }, [param.slug]);
+    }, [param]);
 
     useEffect(() => {
         apiInstance.get(`vendor-products/${param.slug}/`).then((res) => {
             const productData = res.data.results ? res.data.results : [];
             setProduct(productData);
         });
-    }, [param.slug]);
+    }, [param]);
 
     const handleColorButtonClick = (event, product_id, colorName) => {
         setColorValue(colorName);

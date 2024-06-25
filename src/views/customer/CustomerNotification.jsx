@@ -12,7 +12,7 @@ function CustomerNotification() {
 
     const fetchNoti = () => {
         apiInstance.get(`customer/notification/${UserData().user_id}/`).then((res) =>{
-            setNotification(res.data)
+            setNotification(res.data.results)
             
         }).catch(err => {
             console.error(err);
