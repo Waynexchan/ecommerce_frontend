@@ -13,7 +13,7 @@ function GetCurrentAddress() {
                 fetch(url)
                     .then(res => res.json())
                     .then(data => {
-                        console.log('Address data:', data);
+                        
                         setAddress(data.address);
                     })
                     .catch(err => {

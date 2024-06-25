@@ -130,3 +130,50 @@ export const isAccessTokenExpired = (accessToken) => {
         return true;
     }
 };
+
+export const clearExpiredCookies = () => {
+    document.cookie.split(";").forEach((cookie) => {
+        const name = cookie.split("=")[0].trim();
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+    });
+};
+
+const isJsonString = (str) => {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+};
+
+export const clearExpiredLocalStorage = () => {
+    Object.keys(localStorage).forEach((key) => {
+        const itemStr = localStorage.getItem(key);
+        if (itemStr && isJsonString(itemStr)) {
+            try {
+                const item = JSON.parse(itemStr);
+                const now = new Date();
+                if (item.expiry && now.getTime() > item.expiry) {
+                    localStorage.removeItem(key);
+                }
+            } catch (error) {
+                console.error(`Error parsing localStorage item with key "${key}":`, error);
+                localStorage.removeItem(key);
+            }
+        } else {
+            localStorage.removeItem(key); 
+        }
+    });
+};
+
+const setItemWithExpiry = (key, value, ttl) => {
+    const now = new Date();
+    const item = {
+        value: value,
+        expiry: now.getTime() + ttl,
+    };
+    localStorage.setItem(key, JSON.stringify(item));
+};
+
+setItemWithExpiry('token', '123456', 3600000);

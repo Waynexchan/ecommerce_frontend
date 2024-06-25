@@ -113,7 +113,7 @@ function Dashboard() {
     ]
   };
 
-  console.log(product_data);
+
 
   const handleDeleteProduct = async (productPid) => {
     await apiInstance.delete(`vendor-delete-product/${UserData()?.vendor_id}/${productPid}/`);

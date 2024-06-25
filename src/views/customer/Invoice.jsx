@@ -12,11 +12,11 @@ function Invoice() {
 
     useEffect(() => {
         if (userData?.user_id) {
-            apiInstance.get(`customer/order/${userData.user_id}/${param.order_oid}/`)
+            apiInstance.get(`customer/invoice/${userData.user_id}/${param.order_oid}/`)
                 .then((res) => {
-                    console.log(res.data); 
+                    
                     setOrder(res.data);
-                    setOrderItems(res.data.orderitem);
+                    setOrderItems(res.data.order_items);
                 })
                 .catch(err => console.error(err));
         }
@@ -39,7 +39,7 @@ function Invoice() {
                                             <img
                                                 className="img-responsive"
                                                 alt="iamgurdeeposahan"
-                                                src="https://img.freepik.com/free-vector/bird-colorful-logo-gradient-vector_343694-1365.jpg"
+                                                src="https://multivendor-swecommerce-bucket.s3.eu-north-1.amazonaws.com/static/image/sw.jpg"
                                                 style={{ width: 71, borderRadius: 43 }}
                                             />
                                         </div>
@@ -112,7 +112,7 @@ function Invoice() {
                                     {orderItems?.map((o, index) => (
                                         <tr key={index}>
                                             <td className="col-md-5">
-                                                {o.product?.title}
+                                                {o?.product?.title}
                                             </td>
                                             <td className="col-md-2">
                                                 ${o?.price}

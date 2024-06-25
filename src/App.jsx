@@ -1,6 +1,6 @@
 
 import { Routes, Route, BrowserRouter } from 'react-router-dom'
-
+import { clearExpiredCookies, clearExpiredLocalStorage } from './utils/auth';
 import Login from './views/auth/Login'
 import Register from './views/auth/Register'
 import Logout from './views/auth/Logout'
@@ -58,6 +58,8 @@ function App() {
   const userData = UserData();
 
   useEffect(() => {
+      clearExpiredCookies();
+      clearExpiredLocalStorage();
       const url = userData ? `cart-list/${cart_id}/${userData?.user_id}` : `cart-list/${cart_id}/`;
       apiInstance.get(url).then((res) => {
           setCartCount(res.data.length);

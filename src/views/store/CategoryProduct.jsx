@@ -9,8 +9,8 @@ function CategoryProduct() {
     useEffect(() => {
         apiInstance.get(`products/category/${slug}/`)
             .then((response) => {
-                
-                setProducts(response.data);
+                const productsData = response.data.results ? response.data.results : []
+                setProducts(productsData);
             })
             .catch((error) => console.error('Error fetching products by category:', error));
     }, [slug]);
@@ -19,7 +19,7 @@ function CategoryProduct() {
         <div>
             <h2>Products in {slug}</h2>
             <div className="row">
-                {products.map((product, index) => (
+                {Array.isArray(products) && products?.map((product, index) => (
                     <div className="col-lg-4 col-md-12 mb-4" key={index}>
                         <div className="card">
                             <div className="bg-image hover-zoom ripple" data-mdb-ripple-color="light">

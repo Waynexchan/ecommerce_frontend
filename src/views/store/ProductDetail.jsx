@@ -58,7 +58,7 @@ function ProductDetail() {
         if (product.id) {
             try {
                 const res = await apiInstance.get(`reviews/${product.id}/`);
-                setReviews(Array.isArray(res.data) ? res.data : []);
+                setReviews(Array.isArray(res.data.results) ? res.data.results : []);
             } catch (error) {
                 console.error("Error fetching review data:", error);
             }
