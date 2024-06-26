@@ -109,9 +109,7 @@ function AddProduct() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        console.log("Submitting form...");
-        
+    
         const formData = new FormData();
         Object.entries(product).forEach(([key, value]) => {
             if (key === 'image' && value) {
@@ -120,13 +118,13 @@ function AddProduct() {
                 formData.append(key, value);
             }
         });
-
+    
         specifications.forEach((specification, index) => {
             Object.entries(specification).forEach(([key, value]) => {
                 formData.append(`specifications[${index}][${key}]`, value);
             });
         });
-
+    
         colors.forEach((color, index) => {
             Object.entries(color).forEach(([key, value]) => {
                 if (key === 'image' && value && value.file && value.file.type.startsWith('image/')) {
@@ -136,19 +134,19 @@ function AddProduct() {
                 }
             });
         });
-
+    
         sizes.forEach((size, index) => {
             Object.entries(size).forEach(([key, value]) => {
                 formData.append(`sizes[${index}][${key}]`, value);
             });
         });
-
+    
         gallery.forEach((item, index) => {
             if (item.image) {
                 formData.append(`gallery[${index}][image]`, item.image.file);
             }
         });
-
+    
         try {
             const response = await apiInstance.post(`vendor-product-create/${userData?.vendor_id}/`, formData, {
                 headers: {
@@ -156,19 +154,25 @@ function AddProduct() {
                 },
             });
             console.log("Product created successfully:", response.data);
-
+    
             Swal.fire({
                 icon: 'success',
-                title: "Product created successfully ",
-                timer:1500
-            })
-
-            navigate(`/vendor/products/`)
+                title: "Product created successfully",
+                timer: 1500
+            });
+    
+            navigate(`/vendor/products/`);
         } catch (error) {
             console.error("Error creating product:", error);
+    
+            Swal.fire({
+                icon: 'error',
+                title: 'Error creating product',
+                text: error.response?.data?.message || 'There was an error creating the product.',
+                timer: 3000
+            });
         }
     };
-
     return (
         <div className="container-fluid" id="main">
             <div className="row row-offcanvas row-offcanvas-left h-100">

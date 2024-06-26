@@ -78,16 +78,28 @@ function ProductDetail() {
 
     const handleReviewSubmit = (e) => {
         e.preventDefault();
-
+    
+        // check if user has already login
+        if (!userData) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'You need to login',
+                text: 'Please login to submit a review.',
+            });
+            return; 
+        }
+    
         const formdata = new FormData();
-        formdata.append("user_id", userData?.user_id);
-        formdata.append("product_id", product?.id);
+        formdata.append("user_id", userData.user_id);
+        formdata.append("product_id", createReview.product_id);
         formdata.append("rating", createReview.rating);
         formdata.append("review", createReview.review);
-
-        apiInstance.post(`reviews/${product?.id}/`, formdata).then((res) => {
+    
+        apiInstance.post(`reviews/${createReview.product_id}/`, formdata).then((res) => {
             console.log(res.data);
             fetchReviewData();
+        }).catch((err) => {
+            console.error('Error submitting review:', err);
         });
     };
 
@@ -259,10 +271,10 @@ function ProductDetail() {
                                     <div className="row flex-column">
                                         <div className="col-md-6 mb-4">
                                             <div className="form-outline">
-                                                <label className="form-label" htmlFor="typeNumber"><b>Quantity</b></label>
+                                                <label className="form-label" htmlFor="quantity"><b>Quantity</b></label>
                                                 <input
                                                     type="number"
-                                                    id="typeNumber"
+                                                    id="quantity"
                                                     className="form-control quantity"
                                                     min={1}
                                                     value={qtyValue}
@@ -272,12 +284,12 @@ function ProductDetail() {
                                         </div>
                                         <div className="col-md-6 mb-4">
                                             <div className="form-outline">
-                                                <label className="form-label" htmlFor="typeNumber"><b>Size:</b> <span>{sizeValue}</span></label>
+                                                <label className="form-label" htmlFor="sizeSelection"><b>Size:</b> <span>{sizeValue}</span></label>
                                             </div>
                                             <div className="d-flex">
                                                 {size?.map((s, index) => (
                                                     <div key={index}>
-                                                        <input type="hidden" className="size_name" value={s.name} />
+                                                        <input type="hidden" className="size_name" id={`size_${index}`} value={s.name} />
                                                         <button
                                                             className="btn btn-secondary m-1 size_button"
                                                             type="button"
@@ -289,7 +301,7 @@ function ProductDetail() {
                                         </div>
                                         <div className="col-md-6 mb-4">
                                             <div className="form-outline">
-                                                <label className="form-label" htmlFor="typeNumber"><b>Color:</b> <span>{colorValue}</span></label>
+                                                <label className="form-label" htmlFor="colorSelection"><b>Color:</b> <span>{colorValue}</span></label>
                                             </div>
                                             <div className="d-flex">
                                                 {color?.map((c, index) => (
@@ -297,6 +309,7 @@ function ProductDetail() {
                                                         <input
                                                             type="hidden"
                                                             className="color_name"
+                                                            id={`color_${index}`}
                                                             value={c.name}
                                                             readOnly
                                                         />
@@ -321,6 +334,7 @@ function ProductDetail() {
                                         <i className="fas fa-heart" />
                                     </button>
                                 </form>
+
                             </div>
                         </div>
                     </div>
@@ -383,8 +397,8 @@ function ProductDetail() {
                                     <h2>Create a New Review</h2>
                                     <form onSubmit={handleReviewSubmit}>
                                         <div className="mb-3">
-                                            <label htmlFor="username" className="form-label">Rating</label>
-                                            <select name="rating" onChange={handleReviewChange} className="form-select" id="">
+                                            <label htmlFor="rating" className="form-label">Rating</label>
+                                            <select name="rating" onChange={handleReviewChange} className="form-select" id="rating">
                                                 <option value="1">1 Star</option>
                                                 <option value="2">2 Star</option>
                                                 <option value="3">3 Star</option>
@@ -406,6 +420,7 @@ function ProductDetail() {
                                         </div>
                                         <button type="submit" className="btn btn-primary">Submit Review</button>
                                     </form>
+    
                                 </div>
                                 <div className="col-md-6">
                                     <h2>Existing Reviews</h2>
@@ -445,6 +460,8 @@ function ProductDetail() {
             </div>
         </main>
     );
+    
+    
 }
 
 export default ProductDetail;

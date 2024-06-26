@@ -3,6 +3,7 @@ import Sidebar from './Sidebar'
 import apiInstance from '../../utils/axios'
 import UserData from '../plugin/UserData';
 import {  useParams} from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 
 function ReviewDetail() {
@@ -26,19 +27,32 @@ function ReviewDetail() {
         })
     },[])
 
-    const handleReplySubmit = async (e) =>{
-        e.preventDefault()
-        const formdata = new FormData()
-        formdata.append('reply', updateReview.reply)
-
-        await apiInstance.patch(`vendor-reviews/${UserData()?.vendor_id}/${param.review_id}/`, formdata).then((res) =>{
-            console.log(res)
-        })
-
-        apiInstance.get(`vendor-reviews/${UserData()?.vendor_id}/${param.review_id}`).then((res) =>{
+    const handleReplySubmit = async (e) => {
+        e.preventDefault();
+        const formdata = new FormData();
+        formdata.append('reply', updateReview.reply);
+    
+        try {
+            await apiInstance.patch(`vendor-reviews/${UserData()?.vendor_id}/${param.review_id}/`, formdata);
+            Swal.fire({
+                title: 'Success',
+                text: 'Reply submitted successfully!',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+    
+            const res = await apiInstance.get(`vendor-reviews/${UserData()?.vendor_id}/${param.review_id}`);
             setReview(res.data);
-        })
-    }
+        } catch (error) {
+            console.error('Error submitting reply:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'There was an error submitting your reply. Please try again later.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    };
 
     return (
         <div className="container-fluid" id="main" >

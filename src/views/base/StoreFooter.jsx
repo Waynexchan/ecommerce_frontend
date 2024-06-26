@@ -33,12 +33,12 @@ function StoreFooter() {
               <a
                 className="btn btn-primary btn-sm btn-floating me-2"
                 style={{ backgroundColor: "#3b5998" }}
-                href="#!"
+                href="https://www.facebook.com/SWluxury9195"
                 role="button"
               >
                 <i className="fab fa-facebook-f" />
               </a>
-              {/* Twitter */}
+              {/* Twitter
               <a
                 className="btn text-white btn-sm btn-floating me-2"
                 style={{ backgroundColor: "#55acee" }}
@@ -48,28 +48,28 @@ function StoreFooter() {
                 <i className="fab fa-twitter" />
               </a>
               {/* Pinterest */}
-              <a
+              {/* <a
                 className="btn text-white btn-sm btn-floating me-2"
                 style={{ backgroundColor: "#c61118" }}
                 href="#!"
                 role="button"
               >
                 <i className="fab fa-pinterest" />
-              </a>
+              </a> */}
               {/* Youtube */}
-              <a
+              {/* <a
                 className="btn text-white btn-sm btn-floating me-2"
                 style={{ backgroundColor: "#ed302f" }}
                 href="#!"
                 role="button"
               >
                 <i className="fab fa-youtube" />
-              </a>
+              </a> */} 
               {/* Instagram */}
               <a
                 className="btn text-white btn-sm btn-floating me-2"
                 style={{ backgroundColor: "#ac2bac" }}
-                href="#!"
+                href="https://www.instagram.com/swluxury9195/"
                 role="button"
               >
                 <i className="fab fa-instagram" />
