@@ -3,19 +3,32 @@ import Sidebar from './Sidebar';
 import apiInstance from '../../utils/axios';
 import UserData from '../plugin/UserData';
 import { useParams } from 'react-router-dom';
+import axios from 'axios'; // 確保引入 axios
 
 function OrderDetail() {
     const [order, setOrder] = useState({});
     const userData = UserData();
     const param = useParams();
-
+  
     useEffect(() => {
-        if (userData?.user_id) {
-            apiInstance.get(`customer/order/${userData.user_id}/${param.order_oid}/`).then((res) => {
-                setOrder(res.data);
-            }).catch(err => console.error(err));
-        }
-    }, []);
+      const source = axios.CancelToken.source();
+  
+      if (userData?.user_id) {
+        apiInstance.get(`customer/order/${userData.user_id}/${param.order_oid}/`, { cancelToken: source.token })
+          .then((res) => {
+            setOrder(res.data);
+          })
+          .catch((err) => {
+            if (!axios.isCancel(err)) {
+              console.error(err);
+            }
+          });
+      }
+  
+      return () => {
+        source.cancel('Component unmounted and request canceled');
+      };
+    }, [userData?.user_id, param.order_oid]);
 
     return (
         <main className="mt-5">

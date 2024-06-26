@@ -1,23 +1,35 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import apiInstance from '../../utils/axios';
+import apiInstance from '../../utils/axios'; 
+import axios from 'axios'; 
 
 function StoreFooter() {
-  const [categories, setCategories] = useState([]);
-  const navigate = useNavigate();
+  // const [categories, setCategories] = useState([]);
+  // const navigate = useNavigate();
 
-  useEffect(() => {
-    apiInstance.get('category/')
-      .then((response) => {
-        
-        setCategories(response.data.results);
-      })
-      .catch((error) => console.error('Error fetching categories:', error));
-  }, []);
+  // useEffect(() => {
+  //   const source = axios.CancelToken.source(); 
 
-  const handleCategoryClick = (slug) => {
-    navigate(`/products/category/${slug}`);
-  };
+  //   apiInstance.get('category/', { cancelToken: source.token })
+  //     .then((response) => {
+  //       setCategories(response.data.results);
+  //     })
+  //     .catch((error) => {
+  //       if (axios.isCancel(error)) {
+  //         console.log('Request canceled', error.message);
+  //       } else {
+  //         console.error('Error fetching categories:', error);
+  //       }
+  //     });
+
+  //   return () => {
+  //     source.cancel('Component unmounted and request canceled');
+  //   };
+  // }, []);
+
+  // const handleCategoryClick = (slug) => {
+  //   navigate(`/products/category/${slug}`);
+  // };
 
   return (
     <div>
@@ -38,33 +50,6 @@ function StoreFooter() {
               >
                 <i className="fab fa-facebook-f" />
               </a>
-              {/* Twitter
-              <a
-                className="btn text-white btn-sm btn-floating me-2"
-                style={{ backgroundColor: "#55acee" }}
-                href="#!"
-                role="button"
-              >
-                <i className="fab fa-twitter" />
-              </a>
-              {/* Pinterest */}
-              {/* <a
-                className="btn text-white btn-sm btn-floating me-2"
-                style={{ backgroundColor: "#c61118" }}
-                href="#!"
-                role="button"
-              >
-                <i className="fab fa-pinterest" />
-              </a> */}
-              {/* Youtube */}
-              {/* <a
-                className="btn text-white btn-sm btn-floating me-2"
-                style={{ backgroundColor: "#ed302f" }}
-                href="#!"
-                role="button"
-              >
-                <i className="fab fa-youtube" />
-              </a> */} 
               {/* Instagram */}
               <a
                 className="btn text-white btn-sm btn-floating me-2"
@@ -106,7 +91,7 @@ function StoreFooter() {
             </div>
             {/*Grid column*/}
             {/*Grid column*/}
-            <div className="col-lg-3 mb-4 mb-lg-0">
+            {/* <div className="col-lg-3 mb-4 mb-lg-0">
               <p>
                 <strong>Category</strong>
               </p>
@@ -119,7 +104,7 @@ function StoreFooter() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </div> */}
             {/*Grid column*/}
             {/*Grid column*/}
             <div className="col-lg-2 mb-4 mb-lg-0">

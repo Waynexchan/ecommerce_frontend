@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import apiInstance from '../../utils/axios';
 import UserData from '../plugin/UserData';
 import { Link, useParams } from 'react-router-dom';
@@ -34,42 +34,56 @@ function Shop() {
     const param = useParams();
 
     useEffect(() => {
-        apiInstance.get(`shop/${param.slug}/`).then((res) => {
-            setVendor(res.data);
-        });
+        const fetchVendor = async () => {
+            try {
+                const res = await apiInstance.get(`shop/${param.slug}/`);
+                setVendor(res.data);
+            } catch (error) {
+                console.error('Error fetching vendor:', error);
+            }
+        };
+
+        fetchVendor();
     }, [param]);
 
     useEffect(() => {
-        apiInstance.get(`vendor-products/${param.slug}/`).then((res) => {
-            const productData = res.data.results ? res.data.results : [];
-            setProduct(productData);
-        });
+        const fetchProducts = async () => {
+            try {
+                const res = await apiInstance.get(`vendor-products/${param.slug}/`);
+                const productData = res.data.results ? res.data.results : [];
+                setProduct(productData);
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            }
+        };
+
+        fetchProducts();
     }, [param]);
 
-    const handleColorButtonClick = (event, product_id, colorName) => {
+    const handleColorButtonClick = useCallback((event, product_id, colorName) => {
         setColorValue(colorName);
         setSelectedProduct(product_id);
         setSelectedColors((prevSelectedColors) => ({
             ...prevSelectedColors,
             [product_id]: colorName,
         }));
-    };
+    }, []);
 
-    const handleSizeButtonClick = (event, product_id, sizeName) => {
+    const handleSizeButtonClick = useCallback((event, product_id, sizeName) => {
         setSizeValue(sizeName);
         setSelectedProduct(product_id);
         setSelectedSize((prevSelectedSize) => ({
             ...prevSelectedSize,
             [product_id]: sizeName,
         }));
-    };
+    }, []);
 
-    const handleQtyChange = (event, product_id) => {
+    const handleQtyChange = useCallback((event, product_id) => {
         setQtyValue(event.target.value);
         setSelectedProduct(product_id);
-    };
+    }, []);
 
-    const handleAddToCart = async (product_id, price, shipping_amount) => {
+    const handleAddToCart = useCallback(async (product_id, price, shipping_amount) => {
         const formdata = new FormData();
 
         formdata.append('product_id', product_id);
@@ -82,23 +96,25 @@ function Shop() {
         formdata.append('color', colorValue);
         formdata.append('cart_id', cart_id);
 
-        // Make a post request to the cart view api 
-        const response = await apiInstance.post(`cart-view/`, formdata);
-        console.log(response.data);
+        try {
+            const response = await apiInstance.post(`cart-view/`, formdata);
+            console.log(response.data);
 
-        // Fetch updated cart item
-        const url = userData ? `cart-list/${cart_id}/${userData?.user_id}` : `cart-list/${cart_id}/`;
-        apiInstance.get(url).then((res) => {
+            // Fetch updated cart item
+            const url = userData ? `cart-list/${cart_id}/${userData?.user_id}` : `cart-list/${cart_id}/`;
+            const res = await apiInstance.get(url);
             setCartCount(res.data.length);
-        });
 
-        Toast.fire({
-            icon: 'success',
-            title: response.data.message,
-        });
-    };
+            Toast.fire({
+                icon: 'success',
+                title: response.data.message,
+            });
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+        }
+    }, [userData, qtyValue, sizeValue, colorValue, currentAddress, cart_id, setCartCount]);
 
-    const addToWishlist = async (productId, userId) => {
+    const addToWishlist = useCallback(async (productId, userId) => {
         try {
             const formdata = new FormData();
             formdata.append('product_id', productId);
@@ -112,9 +128,9 @@ function Shop() {
                 title: response.data.message,
             });
         } catch (error) {
-            console.log(error);
+            console.error('Error adding to wishlist:', error);
         }
-    };
+    }, []);
 
     return (
         <main className="mt-5">

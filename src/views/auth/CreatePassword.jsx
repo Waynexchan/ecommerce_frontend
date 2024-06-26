@@ -1,40 +1,53 @@
 import { useState } from 'react'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import apiInstance from '../../utils/axios'
+import axios from 'axios';
 
 function CreatePassword() {
-    const [password, setPassword] = useState("")
-    const [confirmPassword, setConfirmPassword] = useState("")
-    const navigate = useNavigate()
-    const [searchParams] = useSearchParams()
-    const otp = searchParams.get("otp")
-    const uidb64 = searchParams.get("uidb64")
-    const [isLoading, setIsLoading] = useState(false)
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const otp = searchParams.get("otp");
+    const uidb64 = searchParams.get("uidb64");
+    const [isLoading, setIsLoading] = useState(false);
 
     const handlePasswordSubmit = async (e) => {
-        setIsLoading(true)
-        e.preventDefault()
-        if (password !== confirmPassword) {
-            alert("Passwords do not match")
-            setIsLoading(false)
-        } else {
-            const formData = {
-                password,
-                uidb64,
-                otp
-            }
+        setIsLoading(true);
+        e.preventDefault();
 
-            try {
-                await apiInstance.post(`user/password-change/`, formData)
-                alert("Password Changed Successfully")
-                navigate("/login")
-                setIsLoading(false)
-            } catch (error) {
-                alert("An error occurred while trying to change the password")
-                setIsLoading(false)
-            }
+        if (password !== confirmPassword) {
+            alert("Passwords do not match");
+            setIsLoading(false);
+            return;
         }
-    }
+
+        const formData = {
+            password,
+            uidb64,
+            otp
+        };
+
+        const source = axios.CancelToken.source();
+
+        try {
+            await apiInstance.post(`user/password-change/`, formData, {
+                cancelToken: source.token
+            });
+            alert("Password Changed Successfully");
+            navigate("/login");
+        } catch (error) {
+            if (!axios.isCancel(error)) {
+                alert("An error occurred while trying to change the password");
+            }
+        } finally {
+            setIsLoading(false);
+        }
+
+        return () => {
+            source.cancel("Component unmounted and request canceled");
+        };
+    };
 
     return (
         <section>

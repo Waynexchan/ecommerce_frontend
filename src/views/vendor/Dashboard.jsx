@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Sidebar from './Sidebar';
 import apiInstance from '../../utils/axios';
 import UserData from '../plugin/UserData';
 import { Bar, Line } from 'react-chartjs-2';
 import Swal from 'sweetalert2';
-import moment from 'moment';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+import moment from 'moment';
 
 import {
   Chart as ChartJS,
@@ -44,50 +45,45 @@ function Dashboard() {
   const [productsChartData, setProductsChartData] = useState([]);
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
+  const userId = UserData()?.vendor_id;
 
-  useEffect(() => {
-    apiInstance.get(`vendor/stats/${UserData()?.vendor_id}/`).then((res) => {
-      setStats(res.data[0]);
-    }).catch((error) => {
-      console.error('Error fetching stats:', error);
-    });
+  const fetchData = useCallback(async (source) => {
+    try {
+      const [statsRes, productsRes, ordersRes, orderChartRes, productChartRes] = await Promise.all([
+        apiInstance.get(`vendor/stats/${userId}/`, { cancelToken: source.token }),
+        apiInstance.get(`vendor/products/${userId}/`, { cancelToken: source.token }),
+        apiInstance.get(`vendor/orders/${userId}/`, { cancelToken: source.token }),
+        apiInstance.get(`vendor-orders-chart/${userId}/`, { cancelToken: source.token }),
+        apiInstance.get(`vendor-product-chart/${userId}/`, { cancelToken: source.token })
+      ]);
 
-    apiInstance.get(`vendor/products/${UserData()?.vendor_id}/`).then((res) => {
-      setProducts(res.data.results || []);
-    }).catch((error) => {
-      console.error('Error fetching products:', error);
-    });
-
-    apiInstance.get(`vendor/orders/${UserData()?.vendor_id}/`).then((res) => {
-      setOrders(res.data.results || []);
-    }).catch((error) => {
-      console.error('Error fetching orders:', error);
-    });
-  }, []);
-
-  useEffect(() => {
-    const fetchChartData = async () => {
-      try {
-        const order_response = await apiInstance.get(`vendor-orders-chart/${UserData()?.vendor_id}/`);
-        setOrderChartData(order_response.data);
-
-        const product_response = await apiInstance.get(`vendor-product-chart/${UserData()?.vendor_id}/`);
-        setProductsChartData(product_response.data);
-      } catch (error) {
-        console.error('Error fetching chart data:', error);
+      setStats(statsRes.data[0]);
+      setProducts(productsRes.data.results || []);
+      setOrders(ordersRes.data.results || []);
+      setOrderChartData(orderChartRes.data);
+      setProductsChartData(productChartRes.data);
+    } catch (error) {
+      if (!axios.isCancel(error)) {
+        console.error('Error fetching data:', error);
       }
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    const source = axios.CancelToken.source();
+    fetchData(source);
+
+    return () => {
+      source.cancel('Component unmounted and request canceled');
     };
+  }, [fetchData]);
 
-    fetchChartData();
-  }, []);
+  const order_months = useMemo(() => orderChartData.map(item => item.month), [orderChartData]);
+  const order_counts = useMemo(() => orderChartData.map(item => item.orders), [orderChartData]);
+  const product_months = useMemo(() => productsChartData.map(item => item.month), [productsChartData]);
+  const product_counts = useMemo(() => productsChartData.map(item => item.orders), [productsChartData]);
 
-  const order_months = orderChartData?.map(item => item.month);
-  const order_counts = orderChartData?.map(item => item.orders);
-
-  const product_months = productsChartData?.map(item => item.month);
-  const product_counts = productsChartData?.map(item => item.orders);
-
-  const order_data = {
+  const order_data = useMemo(() => ({
     labels: order_months,
     datasets: [
       {
@@ -98,9 +94,9 @@ function Dashboard() {
         borderColor: "green"
       }
     ]
-  };
+  }), [order_months, order_counts]);
 
-  const product_data = {
+  const product_data = useMemo(() => ({
     labels: product_months,
     datasets: [
       {
@@ -111,20 +107,21 @@ function Dashboard() {
         borderColor: "blue"
       }
     ]
-  };
+  }), [product_months, product_counts]);
 
-
-
-  const handleDeleteProduct = async (productPid) => {
-    await apiInstance.delete(`vendor-delete-product/${UserData()?.vendor_id}/${productPid}/`);
-    await apiInstance.get(`vendor/products/${UserData()?.vendor_id}/`).then((res) => {
-      setProducts(res.data);
-    });
-    Toast.fire({
-      icon: 'success',
-      title: 'Product Deleted'
-    });
-  };
+  const handleDeleteProduct = useCallback(async (productPid) => {
+    try {
+      await apiInstance.delete(`vendor-delete-product/${userId}/${productPid}/`);
+      const res = await apiInstance.get(`vendor/products/${userId}/`);
+      setProducts(res.data.results || []);
+      Toast.fire({
+        icon: 'success',
+        title: 'Product Deleted'
+      });
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    }
+  }, [userId]);
 
   return (
     <div className="container-fluid" id="main">

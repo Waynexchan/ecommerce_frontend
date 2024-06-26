@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Sidebar from './Sidebar';
 import apiInstance from '../../utils/axios';
 import UserData from '../plugin/UserData';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 
 function AddProduct() {
     const userData = UserData();
@@ -25,29 +26,29 @@ function AddProduct() {
     const [sizes, setSizes] = useState([{ name: '', price: '' }]);
     const [gallery, setGallery] = useState([{ image: '' }]);
     const [category, setCategory] = useState([]);
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
-    const handleAddMore = (setStateFunction) => {
+    const handleAddMore = useCallback((setStateFunction) => {
         setStateFunction((prevState) => [...prevState, {}]);
-    };
+    }, []);
 
-    const handleRemove = (index, setStateFunction) => {
+    const handleRemove = useCallback((index, setStateFunction) => {
         setStateFunction((prevState) => {
             const newState = [...prevState];
             newState.splice(index, 1);
             return newState;
         });
-    };
+    }, []);
 
-    const handleInputChange = (index, field, value, setStateFunction) => {
+    const handleInputChange = useCallback((index, field, value, setStateFunction) => {
         setStateFunction((prevState) => {
             const newState = [...prevState];
             newState[index][field] = value;
             return newState;
         });
-    };
+    }, []);
 
-    const handleImageChange = (index, event, setStateFunction) => {
+    const handleImageChange = useCallback((index, event, setStateFunction) => {
         const file = event.target.files[0];
 
         if (file) {
@@ -63,24 +64,22 @@ function AddProduct() {
 
             reader.readAsDataURL(file);
         } else {
-            // Handle the case when no file is selected
             setStateFunction((prevState) => {
                 const newState = [...prevState];
-                newState[index].image = null; // Set image to null
-                newState[index].preview = null; // Optionally set preview to null
+                newState[index].image = null;
                 return newState;
             });
         }
-    };
+    }, []);
 
-    const handleProductInputChange = (event) => {
+    const handleProductInputChange = useCallback((event) => {
         setProduct({
             ...product,
             [event.target.name]: event.target.value,
         });
-    };
+    }, [product]);
 
-    const handleProductFileChange = (event) => {
+    const handleProductFileChange = useCallback((event) => {
         const file = event.target.files[0];
 
         if (file) {
@@ -90,7 +89,7 @@ function AddProduct() {
                 setProduct({
                     ...product,
                     image: {
-                        file: event.target.files[0],
+                        file,
                         preview: reader.result,
                     },
                 });
@@ -98,73 +97,79 @@ function AddProduct() {
 
             reader.readAsDataURL(file);
         }
-    };
+    }, [product]);
 
     useEffect(() => {
-        apiInstance.get(`category/`).then((res) => {
-            const categoryData = res.data.results ? res.data.results : []
+        const source = axios.CancelToken.source();
+
+        apiInstance.get(`category/`, { cancelToken: source.token }).then((res) => {
+            const categoryData = res.data.results ? res.data.results : [];
             setCategory(categoryData);
+        }).catch((error) => {
+            if (!axios.isCancel(error)) {
+                console.error('Error fetching categories:', error);
+            }
         });
+
+        return () => {
+            source.cancel('Component unmounted and request canceled');
+        };
     }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         const formData = new FormData();
         Object.entries(product).forEach(([key, value]) => {
             if (key === 'image' && value) {
-                formData.append(key, value.file); // Assuming 'value' is an object with 'file' property
+                formData.append(key, value.file);
             } else {
                 formData.append(key, value);
             }
         });
-    
+
         specifications.forEach((specification, index) => {
             Object.entries(specification).forEach(([key, value]) => {
                 formData.append(`specifications[${index}][${key}]`, value);
             });
         });
-    
+
         colors.forEach((color, index) => {
             Object.entries(color).forEach(([key, value]) => {
-                if (key === 'image' && value && value.file && value.file.type.startsWith('image/')) {
-                    formData.append(`colors[${index}][${key}]`, value.file, value.file.name);
-                } else {
-                    formData.append(`colors[${index}][${key}]`, String(value)); // Convert `value` to a string
-                }
+                formData.append(`colors[${index}][${key}]`, value);
             });
         });
-    
+
         sizes.forEach((size, index) => {
             Object.entries(size).forEach(([key, value]) => {
                 formData.append(`sizes[${index}][${key}]`, value);
             });
         });
-    
+
         gallery.forEach((item, index) => {
             if (item.image) {
                 formData.append(`gallery[${index}][image]`, item.image.file);
             }
         });
-    
+
         try {
             const response = await apiInstance.post(`vendor-product-create/${userData?.vendor_id}/`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            console.log("Product created successfully:", response.data);
-    
+            
+
             Swal.fire({
                 icon: 'success',
                 title: "Product created successfully",
                 timer: 1500
             });
-    
+
             navigate(`/vendor/products/`);
         } catch (error) {
             console.error("Error creating product:", error);
-    
+
             Swal.fire({
                 icon: 'error',
                 title: 'Error creating product',
@@ -173,6 +178,8 @@ function AddProduct() {
             });
         }
     };
+
+
     return (
         <div className="container-fluid" id="main">
             <div className="row row-offcanvas row-offcanvas-left h-100">
@@ -268,6 +275,7 @@ function AddProduct() {
                                                                 value={product.price || ''}
                                                                 onChange={handleProductInputChange}
                                                                 autoComplete="off"
+                                                                min="1"
                                                             />
                                                         </div>
                                                         <div className="col-lg-6 mb-2 ">
@@ -282,6 +290,7 @@ function AddProduct() {
                                                                 value={product.old_price || ''}
                                                                 onChange={handleProductInputChange}
                                                                 autoComplete="off"
+                                                                min="1"
                                                             />
                                                         </div>
                                                         <div className="col-lg-6 mb-2 ">
@@ -296,6 +305,7 @@ function AddProduct() {
                                                                 value={product.shipping_amount || ''}
                                                                 onChange={handleProductInputChange}
                                                                 autoComplete="off"
+                                                                min="-0"
                                                             />
                                                         </div>
                                                         <div className="col-lg-6 mb-2 ">
@@ -310,6 +320,7 @@ function AddProduct() {
                                                                 value={product.stock_qty || ''}
                                                                 onChange={handleProductInputChange}
                                                                 autoComplete="off"
+                                                                min="0"
                                                             />
                                                         </div>
                                                     </div>

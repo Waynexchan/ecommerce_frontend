@@ -1,29 +1,54 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import apiInstance from '../../utils/axios';
 import UserData from '../plugin/UserData';
+import axios from 'axios'; 
 import { Link } from 'react-router-dom';
 
 function Sidebar() {
-    const [profile, setProfile] = useState({});
-    const [orderCount, setOrderCount] = useState(0);
-    const [notificationCount, setNotificationCount] = useState(0);
-    const userData = UserData(); // to return user id
+  const [profile, setProfile] = useState({});
+  const [orderCount, setOrderCount] = useState(0);
+  const [notificationCount, setNotificationCount] = useState(0);
+  const userData = UserData();
 
-    useEffect(() => {
-        if (userData?.user_id) {
-            apiInstance.get(`user/profile/${userData?.user_id}/`).then((res) => {
-                setProfile(res.data);
-            });
+  useEffect(() => {
+    const source = axios.CancelToken.source(); // 使用 axios.CancelToken
 
-            apiInstance.get(`customer/orders/${userData.user_id}/`).then((res) => {
-                setOrderCount(res.data.results.length); // Update this line if your API returns a different structure
-            });
+    if (userData?.user_id) {
+      apiInstance.get(`user/profile/${userData?.user_id}/`, { cancelToken: source.token })
+        .then((res) => {
+          setProfile(res.data);
+        })
+        .catch((err) => {
+          if (!axios.isCancel(err)) { // 使用 axios.isCancel
+            console.error(err);
+          }
+        });
 
-            apiInstance.get(`customer/notification/${userData.user_id}/`).then((res) => {
-                setNotificationCount(res.data.length); // Update this line if your API returns a different structure
-            });
-        }
-    }, []);
+      apiInstance.get(`customer/orders/${userData.user_id}/`, { cancelToken: source.token })
+        .then((res) => {
+          setOrderCount(res.data.results.length);
+        })
+        .catch((err) => {
+          if (!axios.isCancel(err)) { // 使用 axios.isCancel
+            console.error(err);
+          }
+        });
+
+      apiInstance.get(`customer/notification/${userData.user_id}/`, { cancelToken: source.token })
+        .then((res) => {
+          setNotificationCount(res.data.length);
+        })
+        .catch((err) => {
+          if (!axios.isCancel(err)) { // 使用 axios.isCancel
+            console.error(err);
+          }
+        });
+    }
+
+    return () => {
+      source.cancel('Component unmounted and request canceled');
+    };
+  }, [userData?.user_id]);
 
     const defaultImage = "https://multivendor-swecommerce-bucket.s3.eu-north-1.amazonaws.com/static/image/default-user.jpg";
 

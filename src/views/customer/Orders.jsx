@@ -3,20 +3,30 @@ import apiInstance from '../../utils/axios';
 import UserData from '../plugin/UserData';
 import { Link } from 'react-router-dom';
 import Sidebar from './Sidebar';
+import axios from 'axios'; // 確保引入 axios
 
 function Orders() {
     const [orders, setOrders] = useState([]);
     const userData = UserData();
-
+  
     useEffect(() => {
-        if (userData?.user_id) {
-            apiInstance.get(`customer/orders/${userData.user_id}/`)
-                .then((res) => {
-                    setOrders(res.data.results); // Access the results array
-                    
-                })
-                .catch(err => console.error(err));
-        }
+      const source = axios.CancelToken.source();
+  
+      if (userData?.user_id) {
+        apiInstance.get(`customer/orders/${userData.user_id}/`, { cancelToken: source.token })
+          .then((res) => {
+            setOrders(res.data.results);
+          })
+          .catch((err) => {
+            if (!axios.isCancel(err)) {
+              console.error(err);
+            }
+          });
+      }
+  
+      return () => {
+        source.cancel('Component unmounted and request canceled');
+      };
     }, [userData?.user_id]);
 
     const statusCounts = orders.reduce((counts, order) => {

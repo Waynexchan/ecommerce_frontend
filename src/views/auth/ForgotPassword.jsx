@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import apiInstance from '../../utils/axios';
 import {  Link } from 'react-router-dom';
+import axios from 'axios';
 
 function ForgotPassword() {
     const [email, setEmail] = useState("");
@@ -9,15 +10,26 @@ function ForgotPassword() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
+
+        const source = axios.CancelToken.source();
+
         try {
-            await apiInstance.get(`user/password-reset/${email}`);
+            await apiInstance.get(`user/password-reset/${email}`, {
+                cancelToken: source.token
+            });
             alert("An Email Has been Sent to you.");
-            setIsLoading(false);
         } catch (error) {
-            alert("Email Does Not Exist");
+            if (!axios.isCancel(error)) {
+                alert("Email Does Not Exist");
+            }
+        } finally {
             setIsLoading(false);
         }
-    }
+
+        return () => {
+            source.cancel("Component unmounted and request canceled");
+        };
+    };
 
     return (
         <section>

@@ -3,43 +3,55 @@ import Sidebar from './Sidebar';
 import apiInstance from '../../utils/axios';
 import UserData from '../plugin/UserData';
 import moment from 'moment';
+import axios from 'axios';
 
-const Notification = () => {
+function Notification() {
     const [notifications, setNotifications] = useState([]);
     const [stats, setStats] = useState({});
+    const userId = UserData()?.vendor_id;
 
-    const fetchNoti = useCallback(async () => {
+    const fetchNoti = useCallback(async (source) => {
         try {
-            const res = await apiInstance.get(`vendor-noti-list/${UserData()?.vendor_id}/`);
-            setNotifications(res.data.results);  // Assuming results field
+            const res = await apiInstance.get(`vendor-noti-list/${userId}/`, { cancelToken: source.token });
+            setNotifications(res.data.results);
         } catch (error) {
-            console.error('Error fetching notifications:', error);
+            if (!axios.isCancel(error)) {
+                console.error('Error fetching notifications:', error);
+            }
         }
-    }, []);
+    }, [userId]);
 
-    const fetchNotiStats = useCallback(async () => {
+    const fetchNotiStats = useCallback(async (source) => {
         try {
-            const res = await apiInstance.get(`vendor-noti-summary/${UserData()?.vendor_id}/`);
+            const res = await apiInstance.get(`vendor-noti-summary/${userId}/`, { cancelToken: source.token });
             setStats(res.data[0]);
         } catch (error) {
-            console.error('Error fetching notification stats:', error);
+            if (!axios.isCancel(error)) {
+                console.error('Error fetching notification stats:', error);
+            }
         }
-    }, []);
+    }, [userId]);
 
     useEffect(() => {
-        fetchNoti();
-        fetchNotiStats();
-    }, []);
+        const source = axios.CancelToken.source();
+
+        fetchNoti(source);
+        fetchNotiStats(source);
+
+        return () => {
+            source.cancel('Component unmounted and request canceled');
+        };
+    }, [fetchNoti, fetchNotiStats]);
 
     const markAsSeen = useCallback(async (notiId) => {
         try {
-            await apiInstance.get(`vendor-noti-mark-as-seen/${UserData()?.vendor_id}/${notiId}/`);
+            await apiInstance.get(`vendor-noti-mark-as-seen/${userId}/${notiId}/`);
             fetchNoti();
             fetchNotiStats();
         } catch (error) {
             console.error('Error marking notification as seen:', error);
         }
-    }, [fetchNoti, fetchNotiStats]);
+    }, [fetchNoti, fetchNotiStats, userId]);
 
     return (
         <div className="container-fluid" id="main">

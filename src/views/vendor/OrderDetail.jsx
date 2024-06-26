@@ -7,7 +7,6 @@ import { Link, useParams } from 'react-router-dom';
 function OrderDetail() {
     const [order, setOrder] = useState({});
     const [orderItems, setOrderItems] = useState([]);
-
     const param = useParams();
 
     useEffect(() => {
@@ -24,7 +23,7 @@ function OrderDetail() {
         if (apiInstance) {
             fetchOrderDetails();
         }
-    }, []);
+    }, [param.order_oid]);
 
     return (
         <main className="mt-5">

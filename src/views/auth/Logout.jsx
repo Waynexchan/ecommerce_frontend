@@ -1,18 +1,25 @@
 import { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { logout } from '../../utils/auth';
+import axios from 'axios';
 
 function Logout() {
     const navigate = useNavigate();
 
     useEffect(() => {
+        const source = axios.CancelToken.source();
+
         const performLogout = async () => {
-            await logout();
-            navigate('/login');
+          await logout(source.token);
+          navigate('/login');
         };
-        
+    
         performLogout();
-    }, []);
+
+        return () => {
+            source.cancel("Component unmounted and request canceled");
+        };
+      }, [logout, navigate]);
 
     return (
         <section>

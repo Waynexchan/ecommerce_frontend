@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext,  useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import apiInstance from '../../utils/axios';
 import GetCurrentAddress from '../plugin/UserCountry';
@@ -36,25 +36,25 @@ function Products() {
   const userData = UserData();
   const cartId = CartID();
 
-  const handleColorButtonClick = (event, productId, colorName) => {
+  const handleColorButtonClick = useCallback((event, productId, colorName) => {
     setColorValue(colorName);
     setSelectedColors((prevSelectedColors) => ({
       ...prevSelectedColors,
       [productId]: colorName,
     }));
-  };
+  }, []);
 
-  const handleSizeButtonClick = (event, productId, sizeName) => {
+  const handleSizeButtonClick = useCallback((event, productId, sizeName) => {
     setSizeValue(sizeName);
     setSelectedSizes((prevSelectedSizes) => ({
       ...prevSelectedSizes,
       [productId]: sizeName,
     }));
-  };
+  }, []);
 
-  const handleQuantityChange = (event, productId) => {
+  const handleQuantityChange = useCallback((event, productId) => {
     setQuantityValue(event.target.value);
-  };
+  }, []);
 
   useEffect(() => {
     if (cache['products']) {
@@ -92,7 +92,7 @@ function Products() {
     }
   }, []);
 
-  const handleAddToCart = async (productId, price, shippingAmount) => {
+  const handleAddToCart = useCallback(async (productId, price, shippingAmount) => {
     const formData = new FormData();
   
     formData.append('product_id', productId);
@@ -120,9 +120,9 @@ function Products() {
     } catch (error) {
       console.error('Error adding to cart:', error);
     }
-  };
+  }, [userData, quantityValue, currentAddress.country, sizeValue, colorValue, cartId, setCartCount]);
 
-  const addToWishlist = async (productId, userId) => {
+  const addToWishlist = useCallback(async (productId, userId) => {
     if (!userId || userId === "undefined") {
       Swal.fire({
         icon: 'warning',
@@ -152,11 +152,11 @@ function Products() {
         text: 'There was an error adding the item to your wishlist',
       });
     }
-  };
+  }, []);
 
-  const handleCategoryClick = (slug) => {
+  const handleCategoryClick = useCallback((slug) => {
     navigate(`/products/category/${slug}`);
-  };
+  }, [navigate]);
 
   return (
     <>

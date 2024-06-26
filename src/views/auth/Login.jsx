@@ -3,6 +3,7 @@ import { login } from '../../utils/auth';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/auths';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -13,9 +14,9 @@ function Login() {
 
     useEffect(() => {
         if (isLoggedIn()) {
-            navigate('/');
+          navigate('/');
         }
-    }, []);
+      }, [isLoggedIn, navigate]);
 
     const resetForm = () => {
         setEmail("");
@@ -26,8 +27,10 @@ function Login() {
         event.preventDefault();
         setIsLoading(true);
 
+        const source = axios.CancelToken.source();
+
         try {
-            const { error } = await login(email, password);
+            const { error } = await login(email, password, source.token);
             if (error) {
                 alert(error);
             } else {
@@ -35,11 +38,17 @@ function Login() {
                 resetForm();
             }
         } catch (err) {
-            console.error(err);
-            alert("An unexpected error occurred.");
+            if (!axios.isCancel(err)) {
+                console.error(err);
+                alert("An unexpected error occurred.");
+            }
         } finally {
             setIsLoading(false);
         }
+
+        return () => {
+            source.cancel("Component unmounted and request canceled");
+        };
     };
 
     return (

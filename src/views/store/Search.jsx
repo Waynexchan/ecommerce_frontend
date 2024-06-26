@@ -17,14 +17,10 @@ const Toast = swal.mixin({
 
 function Search() {
   const [products, setProducts] = useState([]);
-
   const [loadingProducts, setLoadingProducts] = useState(true);
-
-
   const [colorValue, setColorValue] = useState("No Color");
   const [sizeValue, setSizeValue] = useState("No Size");
   const [qtyValue, setQtyValue] = useState(1);
-
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedColors, setSelectedColors] = useState({});
   const [selectedSize, setSelectedSize] = useState({});
@@ -100,9 +96,9 @@ function Search() {
     } catch (error) {
       console.error('Error adding to cart:', error);
     }
-  }, []);
+  }, [userData, qtyValue, currentAddress.country, sizeValue, colorValue, cart_id, setCartCount]);
 
-  const addToWishlist = async (productId, userId) => {
+  const addToWishlist = useCallback(async (productId, userId) => {
     if (!userId || userId === "undefined") {
       swal.fire({
         icon: 'warning',
@@ -132,8 +128,8 @@ function Search() {
         text: 'There was an error adding the item to your wishlist',
       });
     }
-  };
-
+  }, []);
+  
   return (
     <div>
       <main className="mt-5">

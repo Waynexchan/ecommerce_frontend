@@ -1,4 +1,4 @@
-import  { useEffect, useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import apiInstance from '../../utils/axios';
 
@@ -6,14 +6,18 @@ function CategoryProduct() {
     const { slug } = useParams();
     const [products, setProducts] = useState([]);
 
-    useEffect(() => {
+    const fetchProductsByCategory = useCallback(() => {
         apiInstance.get(`products/category/${slug}/`)
             .then((response) => {
-                const productsData = response.data.results ? response.data.results : []
+                const productsData = response.data.results ? response.data.results : [];
                 setProducts(productsData);
             })
             .catch((error) => console.error('Error fetching products by category:', error));
-    }, []);
+    }, [slug]);
+
+    useEffect(() => {
+        fetchProductsByCategory();
+    }, [fetchProductsByCategory]);
 
     return (
         <div>

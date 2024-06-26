@@ -1,22 +1,34 @@
-import {useState, useEffect} from 'react'
-import Sidebar from './Sidebar'
-import apiInstance from '../../utils/axios'
-import UserData from '../plugin/UserData'
+import { useState, useEffect } from 'react';
+import apiInstance from '../../utils/axios';
+import UserData from '../plugin/UserData';
+import axios from 'axios'; // 確保引入 axios
+import Sidebar from './Sidebar';
 import { Link } from 'react-router-dom';
 
 
 function Account() {
-    const [profile, setProfile] = useState({});
+  const [profile, setProfile] = useState({});
+  const userData = UserData();
 
-    const userData = UserData(); // to return user id
+  useEffect(() => {
+    const source = axios.CancelToken.source(); // 使用 axios.CancelToken
 
-    useEffect(() => {
-        if (userData?.user_id) {
-            apiInstance.get(`user/profile/${userData.user_id}/`).then((res) => {
-                setProfile(res.data);
-            }).catch(err => console.error(err));
-        }
-    }, []);
+    if (userData?.user_id) {
+      apiInstance.get(`user/profile/${userData.user_id}/`, { cancelToken: source.token })
+        .then((res) => {
+          setProfile(res.data);
+        })
+        .catch((err) => {
+          if (!axios.isCancel(err)) { // 使用 axios.isCancel
+            console.error(err);
+          }
+        });
+    }
+
+    return () => {
+      source.cancel('Component unmounted and request canceled');
+    };
+  }, [userData?.user_id]);
     return (
         
         <main className="mt-5">

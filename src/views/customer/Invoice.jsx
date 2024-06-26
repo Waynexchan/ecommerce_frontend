@@ -2,25 +2,34 @@ import { useState, useEffect } from 'react';
 import apiInstance from '../../utils/axios';
 import UserData from '../plugin/UserData';
 import { useParams } from 'react-router-dom';
+import axios from 'axios'; // 確保引入 axios
 
 function Invoice() {
     const [order, setOrder] = useState({});
     const [orderItems, setOrderItems] = useState([]);
-
     const userData = UserData();
     const param = useParams();
 
     useEffect(() => {
+        const source = axios.CancelToken.source();
+
         if (userData?.user_id) {
-            apiInstance.get(`customer/invoice/${userData.user_id}/${param.order_oid}/`)
-                .then((res) => {
-                    
-                    setOrder(res.data);
-                    setOrderItems(res.data.order_items);
-                })
-                .catch(err => console.error(err));
+        apiInstance.get(`customer/invoice/${userData.user_id}/${param.order_oid}/`, { cancelToken: source.token })
+            .then((res) => {
+            setOrder(res.data);
+            setOrderItems(res.data.order_items);
+            })
+            .catch((err) => {
+            if (!axios.isCancel(err)) {
+                console.error(err);
+            }
+            });
         }
-    }, [userData?.user_id, param.order_oid]);
+
+    return () => {
+      source.cancel('Component unmounted and request canceled');
+    };
+  }, [userData?.user_id, param.order_oid]);
 
     const handlePrint = () => {
         window.print();

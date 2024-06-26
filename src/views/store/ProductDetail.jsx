@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useRef } from 'react';
+import { useState, useEffect, useContext, useRef , useCallback} from 'react';
 import { useParams } from 'react-router-dom';
 import apiInstance from '../../utils/axios';
 import GetCurrentAddress from '../plugin/UserCountry';
@@ -39,22 +39,24 @@ function ProductDetail() {
     const reviewsRef = useRef(null);
 
     useEffect(() => {
-        apiInstance.get(`products/${param.slug}/`)
-            .then((res) => {
+        const fetchProductDetails = async () => {
+            try {
+                const res = await apiInstance.get(`products/${param.slug}/`);
                 setProduct(res.data);
                 setSpecifications(res.data.specification);
                 setGallery(res.data.gallery);
                 setSize(res.data.size);
                 setColor(res.data.color);
                 setVendor(res.data.vendor);
-            })
-            .catch((err) => {
+            } catch (err) {
                 console.error('Error fetching product details:', err);
                 setError('Failed to load product details');
-            });
+            }
+        };
+        fetchProductDetails();
     }, [param.slug]);
     
-    const fetchReviewData = async () => {
+    const fetchReviewData = useCallback(async () => {
         if (product.id) {
             try {
                 const res = await apiInstance.get(`reviews/${product.id}/`);
@@ -63,11 +65,11 @@ function ProductDetail() {
                 console.error("Error fetching review data:", error);
             }
         }
-    };
-    
+    }, [product.id]);
+
     useEffect(() => {
         fetchReviewData();
-    }, []);
+    }, [fetchReviewData]);
 
     const handleReviewChange = (event) => {
         setCreateReview({
@@ -76,10 +78,9 @@ function ProductDetail() {
         });
     };
 
-    const handleReviewSubmit = (e) => {
+    const handleReviewSubmit = async (e) => {
         e.preventDefault();
     
-        // check if user has already login
         if (!userData) {
             Swal.fire({
                 icon: 'warning',
@@ -95,12 +96,13 @@ function ProductDetail() {
         formdata.append("rating", createReview.rating);
         formdata.append("review", createReview.review);
     
-        apiInstance.post(`reviews/${createReview.product_id}/`, formdata).then((res) => {
+        try {
+            const res = await apiInstance.post(`reviews/${createReview.product_id}/`, formdata);
             console.log(res.data);
             fetchReviewData();
-        }).catch((err) => {
+        } catch (err) {
             console.error('Error submitting review:', err);
-        });
+        }
     };
 
     const handleColorButtonClick = (event) => {
@@ -121,7 +123,7 @@ function ProductDetail() {
         try {
             const formdata = new FormData();
             formdata.append("product_id", product.id);
-            formdata.append('user_id', userData?.user_id || "0");  // Set default value if user is not logged in
+            formdata.append('user_id', userData?.user_id || "0");
             formdata.append("qty", qtyValue);
             formdata.append("price", product.price);
             formdata.append("shipping_amount", product.shipping_amount);

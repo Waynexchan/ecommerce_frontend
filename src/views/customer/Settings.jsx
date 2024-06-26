@@ -1,12 +1,11 @@
-import { useState,  useEffect } from "react";
-import Sidebar from './Sidebar'
-import apiInstance from '../../utils/axios'
-import UserData from '../plugin/UserData'
+import { useState, useEffect } from "react";
+import Sidebar from './Sidebar';
+import apiInstance from '../../utils/axios';
+import UserData from '../plugin/UserData';
 import Swal from 'sweetalert2';
-
+import axios from 'axios'; // 確保引入 axios
 
 function Setting() {
-
   const [profile, setProfile] = useState({
     full_name: '',
     user: {
@@ -18,63 +17,81 @@ function Setting() {
     state: '',
     country: ''
   });
+  const userData = UserData();
 
   useEffect(() => {
-    fetchProfileData()
-  },[])
+    const source = axios.CancelToken.source();
+    if (userData?.user_id) {
+      fetchProfileData(source);
+    } else {
+      console.error('User data is not available.');
+    }
 
-  const fetchProfileData = () =>{
-    apiInstance.get(`user/profile/${UserData()?.user_id}/`).then((res) =>{
-      setProfile(res.data)
-    })
-  }
+    return () => {
+      source.cancel('Component unmounted and request canceled');
+    };
+  }, [userData?.user_id]);
 
-  
+  const fetchProfileData = (source) => {
+    if (userData?.user_id) {
+      apiInstance.get(`user/profile/${userData.user_id}/`, { cancelToken: source.token })
+        .then((res) => {
+          setProfile(res.data);
+        })
+        .catch((err) => {
+          if (!axios.isCancel(err)) {
+            console.error(err);
+          }
+        });
+    } else {
+      console.error('User ID is not available.');
+    }
+  };
 
-  const handleInputChange = (event) =>{
+  const handleInputChange = (event) => {
     setProfile({
       ...profile,
       [event.target.name]: event.target.value
-
-    })
-   
-  }
+    });
+  };
 
   const handleImageChange = (event) => {
     setProfile({
       ...profile,
-      [event.target.name] : event.target.files[0]
-    })
-    
-  }
+      [event.target.name]: event.target.files[0]
+    });
+  };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
-    const formdata = new FormData();
-
-    const res = await apiInstance.get(`user/profile/${UserData()?.user_id}/`)
-    if (profile.image && profile.image !== res.data.image){
-      formdata.append('image', profile.image)
+    if (!userData?.user_id) {
+      console.error('User ID is not available.');
+      return;
     }
-    formdata.append("full_name", profile.full_name)
-    formdata.append("country", profile.country)
-    formdata.append("state", profile.state)
-    formdata.append("city", profile.city)
-    formdata.append("address", profile.address)
 
+    const formdata = new FormData();
     try {
-      await apiInstance.patch(`user/profile/${UserData()?.user_id}/`, formdata, {
+      const res = await apiInstance.get(`user/profile/${userData.user_id}/`);
+      if (profile.image && profile.image !== res.data.image) {
+        formdata.append('image', profile.image);
+      }
+      formdata.append("full_name", profile.full_name);
+      formdata.append("country", profile.country);
+      formdata.append("state", profile.state);
+      formdata.append("city", profile.city);
+      formdata.append("address", profile.address);
+
+      await apiInstance.patch(`user/profile/${userData.user_id}/`, formdata, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
-      })
-      
-      
+      });
+
       // reload
-      fetchProfileData();
-      
-      
+      const source = axios.CancelToken.source();
+      fetchProfileData(source);
+
       Swal.fire({
         icon: 'success',
         title: 'Profile Updated',
@@ -83,14 +100,13 @@ function Setting() {
     } catch (error) {
       console.log(error);
 
-      
       Swal.fire({
         icon: 'error',
         title: 'Update Failed',
         text: 'There was an error updating your profile. Please try again later.',
       });
     }
-}
+  };
 
 
   return (

@@ -4,37 +4,50 @@ import apiInstance from '../../utils/axios'
 import UserData from '../plugin/UserData'
 import Swal from 'sweetalert2'
 import moment from "moment";
+import axios from 'axios'; // 確保引入 axios
 
 function CustomerNotification() {
-
     const [notifications, setNotification] = useState([]);
-    
-
-    const fetchNoti = () => {
-        apiInstance.get(`customer/notification/${UserData().user_id}/`).then((res) =>{
-            setNotification(res.data.results)
-            
-        }).catch(err => {
+  
+    const fetchNoti = (source) => {
+      apiInstance.get(`customer/notification/${UserData().user_id}/`, { cancelToken: source.token })
+        .then((res) => {
+          setNotification(res.data.results);
+        })
+        .catch((err) => {
+          if (!axios.isCancel(err)) {
             console.error(err);
-            setNotification([]); 
+            setNotification([]);
+          }
         });
-    }
-
+    };
+  
     useEffect(() => {
-        fetchNoti()
-    },[])
-
+      const source = axios.CancelToken.source();
+      fetchNoti(source);
+  
+      return () => {
+        source.cancel('Component unmounted and request canceled');
+      };
+    }, []);
+  
     const MarkNotiAsSeen = (notiId) => {
-        apiInstance.get(`customer/notification/${UserData().user_id}/${notiId}/`).then((res) =>{
-            fetchNoti()
-        })
-       
-        Swal.fire({
-            icon:   "success",
-            text: "Notification Marked As Seen"
-
-        })
-    }
+      const source = axios.CancelToken.source();
+  
+      apiInstance.get(`customer/notification/${UserData().user_id}/${notiId}/`, { cancelToken: source.token })
+        .then((res) => {
+          fetchNoti(source);
+        });
+  
+      Swal.fire({
+        icon: "success",
+        text: "Notification Marked As Seen"
+      });
+  
+      return () => {
+        source.cancel('Component unmounted and request canceled');
+      };
+    };
 
     return (
         <main className="mt-5">

@@ -3,6 +3,7 @@ import { register } from '../../utils/auth';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/auths';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 
 function Register() {
     const [form, setForm] = useState({
@@ -18,9 +19,9 @@ function Register() {
 
     useEffect(() => {
         if (isLoggedIn()) {
-            navigate('/');
+          navigate('/');
         }
-    }, []);
+      }, [isLoggedIn, navigate]);
 
     const resetForm = () => {
         setForm({
@@ -43,8 +44,10 @@ function Register() {
         e.preventDefault();
         setIsLoading(true);
 
+        const source = axios.CancelToken.source();
+
         try {
-            const { error } = await register(form.fullname, form.email, form.phone, form.password, form.password2);
+            const { error } = await register(form.fullname, form.email, form.phone, form.password, form.password2, source.token);
             if (error) {
                 Swal.fire({
                     icon: 'error',
@@ -61,15 +64,21 @@ function Register() {
                 resetForm();
             }
         } catch (err) {
-            console.error(err);
-            Swal.fire({
-                icon: 'error',
-                title: 'Unexpected Error',
-                text: 'An unexpected error occurred.',
-            });
+            if (!axios.isCancel(err)) {
+                console.error(err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Unexpected Error',
+                    text: 'An unexpected error occurred.',
+                });
+            }
         } finally {
             setIsLoading(false);
         }
+
+        return () => {
+            source.cancel("Component unmounted and request canceled");
+        };
     };
 
     return (

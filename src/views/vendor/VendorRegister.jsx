@@ -5,10 +5,8 @@ import apiInstance from '../../utils/axios';
 import UserData from '../plugin/UserData';
 
 function VendorRegister() {
-    if (UserData()?.vendor_id !== 0) {
-        window.location.href = '/vendor/dashboard/';
-    }
-
+    const userData = UserData();
+    const navigate = useNavigate();
     const [vendor, setVendor] = useState({
         image: null,
         name: "",
@@ -17,7 +15,10 @@ function VendorRegister() {
         mobile: "",
     });
     const [isLoading, setIsLoading] = useState(false);
-    const navigate = useNavigate();
+
+    if (userData?.vendor_id !== 0) {
+        window.location.href = '/vendor/dashboard/';
+    }
 
     const handleInputChange = (event) => {
         setVendor({
@@ -33,12 +34,6 @@ function VendorRegister() {
         });
     };
 
-    const config = {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData();
@@ -49,10 +44,12 @@ function VendorRegister() {
         formData.append('email', vendor.email);
         formData.append('description', vendor.description);
         formData.append('mobile', vendor.mobile);
-        formData.append('user_id', UserData()?.user_id);
+        formData.append('user_id', userData?.user_id);
 
         try {
-            const res = await apiInstance.post('vendor-register/', formData, config);
+            const res = await apiInstance.post('vendor-register/', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
             if (res.data.message === "Created vendor account") {
                 Swal.fire({
                     icon: "success",

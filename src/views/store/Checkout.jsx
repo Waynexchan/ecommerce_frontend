@@ -1,9 +1,10 @@
-import { useState, useEffect} from 'react'
+import { useState, useEffect, useCallback} from 'react'
 import { PayPalButtons, PayPalScriptProvider } from '@paypal/react-paypal-js';
 import apiInstance from '../../utils/axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { SERVER_URL, PAYPAL_CLIENT_ID } from '../../utils/constants';
+import axios from 'axios';
 
 
  const initialOptions = {
@@ -14,20 +15,33 @@ import { SERVER_URL, PAYPAL_CLIENT_ID } from '../../utils/constants';
 
 function Checkout() {
     const [order, setOrder] = useState(null);
-    const[couponCode, setCouponCode] =useState("")
-    const[paymentLoading, setPaymentLoading] =useState(false)
-    const param = useParams()
-    const navigate = useNavigate()
+    const [couponCode, setCouponCode] = useState("");
+    const [paymentLoading, setPaymentLoading] = useState(false);
+    const param = useParams();
+    const navigate = useNavigate();
     
-    const fetchOrderData = () =>{
-        apiInstance.get(`checkout/${param?.order_oid}/`).then((res) =>{
-            setOrder(res.data)
-        })
-    }
+    const fetchOrderData = useCallback(() => {
+        const source = axios.CancelToken.source();
+        apiInstance.get(`checkout/${param?.order_oid}/`, { cancelToken: source.token })
+            .then((res) => {
+                setOrder(res.data);
+            })
+            .catch((error) => {
+                if (axios.isCancel(error)) {
+                    console.log('Request canceled', error.message);
+                } else {
+                    console.error('Error fetching order data:', error);
+                }
+            });
+
+        return () => {
+            source.cancel('Component unmounted and request canceled');
+        };
+    }, [param?.order_oid]);
 
     useEffect(() => {
-        fetchOrderData()
-    },[])
+        fetchOrderData();
+    }, [fetchOrderData]);
 
     const applyCoupon = async () =>{
         console.log(couponCode)

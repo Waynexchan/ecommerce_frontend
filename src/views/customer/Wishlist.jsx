@@ -3,35 +3,55 @@ import apiInstance from '../../utils/axios';
 import UserData from '../plugin/UserData';
 import Sidebar from './Sidebar';
 import swal from 'sweetalert2';
+import axios from 'axios';
 
 function Wishlist() {
   const [wishlist, setWishlist] = useState([]);
   const userData = UserData();
 
-  const fetchWishlist = async () => {
+  const fetchWishlist = async (source) => {
     try {
-      const res = await apiInstance.get(`customer/wishlist/${userData?.user_id}/`);
-      const wishlistData = res.data.results ? res.data.results : [];
-      setWishlist(wishlistData);
+      if (userData?.user_id) {
+        const res = await apiInstance.get(`customer/wishlist/${userData.user_id}/`, { cancelToken: source.token });
+        const wishlistData = res.data.results ? res.data.results : [];
+        setWishlist(wishlistData);
+      } else {
+        console.error('User data is not available.');
+      }
     } catch (error) {
-      console.error('Error fetching wishlist:', error);
+      if (!axios.isCancel(error)) {
+        console.error('Error fetching wishlist:', error);
+      }
     }
   };
 
   useEffect(() => {
+    const source = axios.CancelToken.source();
+
     if (userData?.user_id) {
-      fetchWishlist();
+      fetchWishlist(source);
+    } else {
+      console.error('User data is not available.');
     }
+
+    return () => {
+      source.cancel('Component unmounted and request canceled');
+    };
   }, [userData?.user_id]);
 
   const addToWishlist = async (productId, userId) => {
+    if (!userId) {
+      console.error('User ID is not available.');
+      return;
+    }
+
     const existingItem = wishlist.find(item => item.product_id === productId);
 
     if (existingItem) {
       // DELETE request to remove item from wishlist
       try {
         const response = await apiInstance.delete(`customer/wishlist/${userId}/${existingItem.id}/`);
-        fetchWishlist();
+        setWishlist(prevWishlist => prevWishlist.filter(item => item.product_id !== productId)); // 手動更新狀態
         swal.fire({
           icon: 'success',
           title: response.data.message,
@@ -48,7 +68,7 @@ function Wishlist() {
       try {
         const formdata = { product_id: productId, user_id: userId };
         const response = await apiInstance.post(`customer/wishlist/${userId}/`, formdata);
-        fetchWishlist();
+        fetchWishlist(); 
         swal.fire({
           icon: 'success',
           title: response.data.message,

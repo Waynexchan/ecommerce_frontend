@@ -6,20 +6,19 @@ import debounce from 'lodash/debounce';
 
 function StoreHeader() {
     const [isLoggedIn, user, logout] = useAuthStore((state) => [
-        state.isLoggedIn,
-        state.user,
-        state.logout
+      state.isLoggedIn,
+      state.user,
+      state.logout
     ]);
-
     const { cartCount } = useContext(CartContext);
     const [search, setSearch] = useState("");
     const navigate = useNavigate();
-
+  
     const debouncedSearchSubmit = useCallback(
-        debounce((search) => {
-            navigate(`/search?query=${search}`);
-        }, 500),
-        []
+      debounce((search) => {
+        navigate(`/search?query=${search}`);
+      }, 500),
+      [navigate]
     );
 
     const handleSearchChange = (event) => {

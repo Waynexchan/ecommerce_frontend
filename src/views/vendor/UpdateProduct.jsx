@@ -28,16 +28,32 @@ function UpdateProduct() {
     const [gallery, setGallery] = useState([{ image: '' }]);
     const [category, setCategory] = useState([]);
 
+    useEffect(() => {
+        const fetchCategory = async () => {
+            const res = await apiInstance.get(`category/`);
+            setCategory(res.data.results || []);
+        };
+        fetchCategory();
+    }, []);
+
+    useEffect(() => {
+        const fetchProduct = async () => {
+            const res = await apiInstance.get(`vendor-product-update/${userData?.vendor_id}/${param.pid}/`);
+            setProduct(res.data);
+            setColors(res.data.color);
+            setSizes(res.data.size);
+            setSpecifications(res.data.specification);
+            setGallery(res.data.gallery);
+        };
+        fetchProduct();
+    }, [param.pid, userData?.vendor_id]);
+
     const handleAddMore = (setStateFunction) => {
         setStateFunction((prevState) => [...prevState, {}]);
     };
 
     const handleRemove = (index, setStateFunction) => {
-        setStateFunction((prevState) => {
-            const newState = [...prevState];
-            newState.splice(index, 1);
-            return newState;
-        });
+        setStateFunction((prevState) => prevState.filter((_, i) => i !== index));
     };
 
     const handleInputChange = (index, field, value, setStateFunction) => {
@@ -75,12 +91,22 @@ function UpdateProduct() {
 
     const handleProductInputChange = (event) => {
         const { name, value } = event.target;
-        setProduct({
-            ...product,
-            [name]: name === 'price' || name === 'old_price' || name === 'shipping_amount' || name === 'stock_qty'
-                ? parseFloat(value)
-                : value,
-        });
+        if (name === 'stock_qty' && value < 1) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Input',
+                text: 'Stock Quantity must be greater than or equal to 1',
+            });
+            setProduct({
+                ...product,
+                [name]: 1, // Reset to 1 if the input value is less than 1
+            });
+        } else {
+            setProduct({
+                ...product,
+                [name]: ['price', 'old_price', 'shipping_amount', 'stock_qty'].includes(name) ? parseFloat(value) : value,
+            });
+        }
     };
 
     const handleProductFileChange = (event) => {
@@ -93,7 +119,7 @@ function UpdateProduct() {
                 setProduct({
                     ...product,
                     image: {
-                        file: event.target.files[0],
+                        file: file,
                         preview: reader.result,
                     },
                 });
@@ -102,23 +128,6 @@ function UpdateProduct() {
             reader.readAsDataURL(file);
         }
     };
-
-    useEffect(() => {
-        apiInstance.get(`category/`).then((res) => {
-            const categoryData = res.data.results ? res.data.results : [];
-            setCategory(categoryData);
-        });
-    }, []);
-
-    useEffect(() => {
-        apiInstance.get(`vendor-product-update/${userData?.vendor_id}/${param.pid}/`).then((res) => {
-            setProduct(res.data);
-            setColors(res.data.color);
-            setSizes(res.data.size);
-            setSpecifications(res.data.specification);
-            setGallery(res.data.gallery);
-        });
-    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -268,6 +277,7 @@ function UpdateProduct() {
                                                                 value={product.price || ''}
                                                                 onChange={handleProductInputChange}
                                                                 autoComplete="off"
+                                                                min="1"
                                                             />
                                                         </div>
                                                         <div className="col-lg-6 mb-2">
@@ -282,6 +292,7 @@ function UpdateProduct() {
                                                                 value={product.old_price || ''}
                                                                 onChange={handleProductInputChange}
                                                                 autoComplete="off"
+                                                                min="1"
                                                             />
                                                         </div>
                                                         <div className="col-lg-6 mb-2">
@@ -296,6 +307,7 @@ function UpdateProduct() {
                                                                 value={product.shipping_amount || ''}
                                                                 onChange={handleProductInputChange}
                                                                 autoComplete="off"
+                                                                min="0"
                                                             />
                                                         </div>
                                                         <div className="col-lg-6 mb-2">
@@ -310,6 +322,7 @@ function UpdateProduct() {
                                                                 value={product.stock_qty || ''}
                                                                 onChange={handleProductInputChange}
                                                                 autoComplete="off"
+                                                                min="0"
                                                             />
                                                         </div>
                                                     </div>

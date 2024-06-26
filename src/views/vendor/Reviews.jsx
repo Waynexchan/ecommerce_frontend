@@ -8,19 +8,21 @@ function Reviews() {
   const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
-    apiInstance
-      .get(`vendor-reviews/${UserData()?.vendor_id}`)
-      .then((res) => {
+    const fetchReviews = async () => {
+      try {
+        const res = await apiInstance.get(`vendor-reviews/${UserData()?.vendor_id}`);
         if (Array.isArray(res.data.results)) {
           setReviews(res.data.results);
         } else {
           setReviews([]);
         }
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('Error fetching reviews:', error);
         setReviews([]);
-      });
+      }
+    };
+
+    fetchReviews();
   }, []);
 
   return (

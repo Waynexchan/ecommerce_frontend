@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Sidebar from './Sidebar';
 import apiInstance from '../../utils/axios';
 import UserData from '../plugin/UserData';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 
 function Coupon() {
     const [stats, setStats] = useState({});
@@ -14,58 +15,66 @@ function Coupon() {
         active: true
     });
 
-    const fetchCouponData = async () => {
+    const fetchCouponData = useCallback(async (source) => {
         try {
-            const statsRes = await apiInstance.get(`vendor-coupon-stats/${UserData()?.vendor_id}/`);
+            const statsRes = await apiInstance.get(`vendor-coupon-stats/${UserData()?.vendor_id}/`, { cancelToken: source.token });
             setStats(statsRes.data[0]);
 
-            const couponsRes = await apiInstance.get(`vendor-coupon-list/${UserData()?.vendor_id}/`);
-            
+            const couponsRes = await apiInstance.get(`vendor-coupon-list/${UserData()?.vendor_id}/`, { cancelToken: source.token });
             setCoupons(couponsRes.data.results || []);
         } catch (error) {
-            console.error('Error fetching coupon data:', error);
+            if (!axios.isCancel(error)) {
+                console.error('Error fetching coupon data:', error);
+            }
         }
-    };
-
-    useEffect(() => {
-        fetchCouponData();
     }, []);
 
-    const handleDeleteCoupon = async (couponId) => {
+    useEffect(() => {
+        const source = axios.CancelToken.source();
+        fetchCouponData(source);
+
+        return () => {
+            source.cancel('Component unmounted and request canceled');
+        };
+    }, [fetchCouponData]);
+
+    const handleDeleteCoupon = useCallback(async (couponId) => {
         try {
             await apiInstance.delete(`vendor-coupon-detail/${UserData()?.vendor_id}/${couponId}/`);
-            fetchCouponData();
+            const source = axios.CancelToken.source();
+            fetchCouponData(source);
         } catch (error) {
             console.error('Error deleting coupon:', error);
         }
-    };
+    }, [fetchCouponData]);
 
-    const handleCreateCouponChange = (event) => {
+    const handleCreateCouponChange = useCallback((event) => {
         setCreateCoupons({
             ...createCoupons,
             [event.target.name]: event.target.type === 'checkbox' ? event.target.checked : event.target.value,
         });
-    };
+    }, [createCoupons]);
 
-    const handleCreateCoupon = async (e) => {
+    const handleCreateCoupon = useCallback(async (e) => {
         e.preventDefault();
-
+    
         const formdata = new FormData();
         formdata.append('vendor_id', UserData()?.vendor_id);
         formdata.append('code', createCoupons.code);
         formdata.append('discount', createCoupons.discount);
         formdata.append('active', createCoupons.active);
-
+    
         await apiInstance.post(`vendor-coupon-create/${UserData()?.vendor_id}/`, formdata).then((res) => {
             console.log(res.data);
         });
-        fetchCouponData();
-
+        const source = axios.CancelToken.source();
+        fetchCouponData(source);
+    
         Swal.fire({
             icon: 'success',
             title: "Coupon Created"
         });
-    };
+    }, [createCoupons, fetchCouponData]);
 
     return (
         <div className="container-fluid" id="main">

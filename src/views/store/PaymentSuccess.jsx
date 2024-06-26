@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import apiInstance from '../../utils/axios';
+import axios from 'axios';
+
 
 function PaymentSuccess() {
     const [loading, setIsLoading] = useState(true);
@@ -13,21 +15,27 @@ function PaymentSuccess() {
     const sessionId = urlParams.get('session_id');
     const paypalOrderId = urlParams.get('paypal_order_id');
     
-    const handleViewOrder = () => {
+    const handleViewOrder = useCallback(() => {
         navigate(`/customer/orders/${order.oid}/`);
-    };
+    }, [order, navigate]);
 
     useEffect(() => {
+        const source = axios.CancelToken.source();
         const fetchOrderDetails = async () => {
             try {
-                const res = await apiInstance.get(`checkout/${param?.order_oid}/`);
+                const res = await apiInstance.get(`checkout/${param?.order_oid}/`, { cancelToken: source.token });
                 setOrder(res.data);
             } catch (error) {
-                console.error("Error fetching order details", error);
+                if (!axios.isCancel(error)) {
+                    console.error("Error fetching order details", error);
+                }
             }
         };
         fetchOrderDetails();
-    }, [param]);
+        return () => {
+            source.cancel("Component unmounted and request canceled");
+        };
+    }, [param?.order_oid]);
 
     useEffect(() => {
         const processPayment = async () => {

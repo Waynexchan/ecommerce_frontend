@@ -1,30 +1,57 @@
-import {useState, useEffect} from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Sidebar from './Sidebar';
 import apiInstance from '../../utils/axios';
 import UserData from '../plugin/UserData';
 import { Line, Bar } from 'react-chartjs-2';
 import { Chart, Filler } from 'chart.js';
+import { useParams } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import axios from 'axios';
 
-// Register the Filler plugin
 Chart.register(Filler);
 
 function Earning() {
     const [earningStats, setEarningStats] = useState({});
     const [earningStatsTracker, setEarningStatsTracker] = useState([]);
     const [earningChart, setEarningChart] = useState([]);
+    const userId = UserData()?.vendor_id;
 
     useEffect(() => {
-        apiInstance.get(`vendor-earning/${UserData()?.vendor_id}/`).then((res) => {
-            setEarningStats(res.data[0]);
-        });
-        apiInstance.get(`vendor-monthly-earning/${UserData()?.vendor_id}/`).then((res) => {
-            setEarningStatsTracker(res.data);
-            setEarningChart(res.data);
-        });
-    }, []);
+        const source = axios.CancelToken.source();
 
-    const months = earningChart?.map(item => item.month);
-    const revenue = earningChart?.map(item => item.total_earning);
+        const fetchData = async () => {
+            try {
+                const res = await apiInstance.get(`vendor-earning/${userId}/`, { cancelToken: source.token });
+                setEarningStats(res.data[0]);
+            } catch (error) {
+                if (!axios.isCancel(error)) {
+                    console.error('Error fetching earning stats:', error);
+                }
+            }
+        };
+
+        const fetchMonthlyEarning = async () => {
+            try {
+                const res = await apiInstance.get(`vendor-monthly-earning/${userId}/`, { cancelToken: source.token });
+                setEarningStatsTracker(res.data);
+                setEarningChart(res.data);
+            } catch (error) {
+                if (!axios.isCancel(error)) {
+                    console.error('Error fetching monthly earning:', error);
+                }
+            }
+        };
+
+        fetchData();
+        fetchMonthlyEarning();
+
+        return () => {
+            source.cancel('Component unmounted and request canceled');
+        };
+    }, [userId]);
+
+    const months = earningChart.map(item => item.month);
+    const revenue = earningChart.map(item => item.total_earning);
 
     const revenue_data = {
         labels: months,

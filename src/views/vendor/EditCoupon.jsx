@@ -4,6 +4,7 @@ import apiInstance from '../../utils/axios';
 import UserData from '../plugin/UserData';
 import { Link, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 
 function EditCoupon() {
     const [coupon, setCoupon] = useState({
@@ -12,16 +13,32 @@ function EditCoupon() {
         active: false
     });
     const param = useParams();
+    const userId = UserData()?.vendor_id;
 
     useEffect(() => {
-        apiInstance.get(`vendor-coupon-detail/${UserData()?.vendor_id}/${param.coupon_id}/`).then((res) => {
-            setCoupon({
-                code: res.data.code || '',
-                discount: res.data.discount || '',
-                active: res.data.active || false
-            });
-        });
-    }, []);
+        const source = axios.CancelToken.source();
+
+        const fetchCoupon = async () => {
+            try {
+                const res = await apiInstance.get(`vendor-coupon-detail/${userId}/${param.coupon_id}/`, { cancelToken: source.token });
+                setCoupon({
+                    code: res.data.code || '',
+                    discount: res.data.discount || '',
+                    active: res.data.active || false
+                });
+            } catch (error) {
+                if (!axios.isCancel(error)) {
+                    console.error('Error fetching coupon:', error);
+                }
+            }
+        };
+
+        fetchCoupon();
+
+        return () => {
+            source.cancel('Component unmounted and request canceled');
+        };
+    }, [userId, param.coupon_id]);
 
     const handleCouponChange = (event) => {
         const { name, type, checked, value } = event.target;
@@ -35,18 +52,20 @@ function EditCoupon() {
         e.preventDefault();
 
         const formdata = new FormData();
-
-        formdata.append('vendor_id', UserData()?.vendor_id);
+        formdata.append('vendor_id', userId);
         formdata.append('code', coupon.code);
         formdata.append('discount', coupon.discount);
         formdata.append('active', coupon.active);
 
-        await apiInstance.patch(`vendor-coupon-detail/${UserData()?.vendor_id}/${param.coupon_id}/`, formdata).then((res) => {
+        try {
+            await apiInstance.patch(`vendor-coupon-detail/${userId}/${param.coupon_id}/`, formdata);
             Swal.fire({
                 icon: 'success',
                 title: "Coupon Updated"
             });
-        });
+        } catch (error) {
+            console.error('Error updating coupon:', error);
+        }
     };
 
     return (

@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react'
+import {useState, useEffect, useCallback} from 'react'
 import Sidebar from './Sidebar'
 import apiInstance from '../../utils/axios'
 import UserData from '../plugin/UserData';
@@ -13,43 +13,49 @@ const Toast = Swal.mixin({
     timerProgressBar:true
   })
 
-function Product() {
-    const [products, setProducts] = useState([])
-    const userData = UserData()
+  function Product() {
+    const [products, setProducts] = useState([]);
+    const userData = UserData();
 
-    useEffect(() => {
+    const fetchProducts = useCallback(async () => {
         if (userData?.vendor_id) {
-            apiInstance.get(`vendor/products/${userData.vendor_id}/`).then((res) => {
+            try {
+                const res = await apiInstance.get(`vendor/products/${userData.vendor_id}/`);
                 const productsData = res.data.results ? res.data.results : [];
                 setProducts(productsData);
-            }).catch(error => {
+            } catch (error) {
                 console.error("Error fetching products:", error);
                 setProducts([]);
-            });
+            }
         }
-    }, []);
+    }, [userData?.vendor_id]);
 
-    const handleDeleteProduct = async (productPid) => {
-        await apiInstance.delete(`vendor-delete-product/${UserData()?.vendor_id}/${productPid}/`)
-        await apiInstance.get(`vendor/products/${UserData()?.vendor_id}/`).then((res) =>{
-            const productsData = res.data.results ? res.data.results : [];
-            setProducts(productsData);
-        })
-        Toast.fire({
-            icon: 'success',
-            title: 'Product Deleted'
-        })
-    }
+    useEffect(() => {
+        fetchProducts();
+    }, [fetchProducts]);
 
-    const handleFilterProduct = async (param) => {
+    const handleDeleteProduct = useCallback(async (productPid) => {
         try {
-            const response = await apiInstance.get(`vendor-product-filter/${userData?.vendor_id}?filter=${param}`)
+            await apiInstance.delete(`vendor-delete-product/${UserData()?.vendor_id}/${productPid}/`);
+            fetchProducts();
+            Toast.fire({
+                icon: 'success',
+                title: 'Product Deleted'
+            });
+        } catch (error) {
+            console.error('Error deleting product:', error);
+        }
+    }, [fetchProducts]);
+
+    const handleFilterProduct = useCallback(async (param) => {
+        try {
+            const response = await apiInstance.get(`vendor-product-filter/${userData?.vendor_id}?filter=${param}`);
             const productsData = response.data.results ? response.data.results : [];
             setProducts(productsData);
         } catch (error) {
-            console.log(error);
+            console.error('Error filtering products:', error);
         }
-    }
+    }, [userData?.vendor_id]);
 
     return (
         <div className="container-fluid" id="main">
